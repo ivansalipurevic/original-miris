@@ -2975,7 +2975,7 @@ textarea:disabled {
   }
 
   .brandLogo {
-    height: 42px;
+    height: 48px;
   }
 
   .brandText {
@@ -3055,6 +3055,11 @@ textarea:disabled {
     background: rgba(17, 17, 17, 0.84);
     border-radius: 2px;
     display: block;
+    margin: 0 auto;
+    left: auto;
+    right: auto;
+    top: auto;
+    transform: none;
   }
 
   .burgerBars::before,
@@ -3066,6 +3071,7 @@ textarea:disabled {
     height: 2px;
     background: rgba(17, 17, 17, 0.84);
     border-radius: 2px;
+    transform: none;
   }
 
   .burgerBars::before {
