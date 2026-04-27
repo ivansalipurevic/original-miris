@@ -9,7 +9,7 @@ export function ContactPage() {
       </div>
 
       <p className="contactLead muted">
-        Imate pitanje o parfemu, dostavi ili narudžbi? Popunite formu — ovo je statični prikaz (poruka se ne šalje dok ne povežemo backend).
+        Imate pitanje o parfemu, dostavi ili narudžbi? Popunite formu — odgovaramo u najkraćem roku.
       </p>
 
       <div className="contactGrid">
@@ -46,7 +46,6 @@ export function ContactPage() {
             <button className="contactSubmit" type="submit" disabled>
               Pošalji poruku
             </button>
-            <p className="contactFormNote muted">Statični prikaz — dugme je privremeno isključeno.</p>
           </form>
         </section>
 
@@ -71,7 +70,11 @@ export function ContactPage() {
               </span>
               <div>
                 <div className="contactInfoLabel">Telefon</div>
-                <div className="contactInfoValue">+387 61 000 000</div>
+                <div className="contactInfoValue">
+                  <a className="contactInfoLink" href="tel:+38765999794">
+                    +38765999794
+                  </a>
+                </div>
               </div>
             </li>
             <li className="contactInfoRow">
@@ -87,7 +90,11 @@ export function ContactPage() {
               </span>
               <div>
                 <div className="contactInfoLabel">Email</div>
-                <div className="contactInfoValue">info@originalmiris.ba</div>
+                <div className="contactInfoValue">
+                  <a className="contactInfoLink" href="mailto:info@originalmiris.ba">
+                    info@originalmiris.ba
+                  </a>
+                </div>
               </div>
             </li>
             <li className="contactInfoRow">

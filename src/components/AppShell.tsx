@@ -45,6 +45,7 @@ export function AppShell({ children }: PropsWithChildren) {
     setIsCartOpen(false);
     setIsCheckoutOpen(false);
     setCheckoutDoneId(null);
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
   }, [location.pathname]);
 
   const year = useMemo(() => new Date().getFullYear(), []);
@@ -142,9 +143,8 @@ export function AppShell({ children }: PropsWithChildren) {
       <footer className="footer">
         <div className="footerInner">
           <div className="footerCol">
-            <div className="footerTitle">kupiparfem.com</div>
-            <div className="muted">Statični UI klon (bez logike).</div>
-            <div className="footerMeta muted">© {year} kupiparfem.com</div>
+            <div className="footerTitle">originalmiris.ba</div>
+            <div className="footerMeta muted">© {year} originalmiris.ba</div>
           </div>
 
           <div className="footerCol">

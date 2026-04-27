@@ -99,7 +99,6 @@ export function ProductsPage({ mode }: { mode: ProductsMode }) {
       <div className="pageHeader">
         <h1>{title}</h1>
         <div className="pageHeaderMeta">
-          <div className="muted">{filteredProducts.length} artikala</div>
           <label className="search">
             <span className="srOnly">Pretraga</span>
             <span className="searchIcon" aria-hidden="true" />
