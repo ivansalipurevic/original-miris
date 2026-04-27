@@ -3049,37 +3049,20 @@ textarea:disabled {
 
   /* Mobile hamburger: clear 3 lines */
   .burgerBars {
-    position: relative;
     width: 18px;
-    height: 2px;
-    background: rgba(17, 17, 17, 0.84);
-    border-radius: 2px;
+    height: 14px;
     display: block;
-    margin: 0 auto;
-    left: auto;
-    right: auto;
-    top: auto;
-    transform: none;
+    color: rgba(17, 17, 17, 0.84);
+    background:
+      linear-gradient(currentColor 0 0) top / 100% 2px no-repeat,
+      linear-gradient(currentColor 0 0) center / 100% 2px no-repeat,
+      linear-gradient(currentColor 0 0) bottom / 100% 2px no-repeat;
+    border-radius: 2px;
   }
 
   .burgerBars::before,
   .burgerBars::after {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: rgba(17, 17, 17, 0.84);
-    border-radius: 2px;
-    transform: none;
-  }
-
-  .burgerBars::before {
-    transform: translateY(-7px);
-  }
-
-  .burgerBars::after {
-    transform: translateY(7px);
+    content: none;
   }
 
   .mobileNav {
