@@ -10,7 +10,7 @@ export function HomePage() {
           <div className="heroInner">
           <h1 className="heroTitle">Originalni parfemi</h1>
           <p className="heroSubtitle">
-            Provjereno porijeklo i kvalitet. Statični UI klon, bez kupovine i bez logike.
+            Provjereno porijeklo i premium kvalitet. Najbolji mirisi — brzo, sigurno i jednostavno.
           </p>
           <div className="heroCtas">
             <Link className="btnPrimary" to="/products">

@@ -2915,6 +2915,48 @@ textarea:disabled {
 }
 
 @media (max-width: 760px) {
+  /* Mobile overall spacing */
+  .page {
+    padding: 18px 12px 34px;
+  }
+
+  .section {
+    margin-top: 18px;
+  }
+
+  /* Hero: cleaner + less tall */
+  .hero {
+    padding: 22px 18px;
+    border-radius: 20px;
+  }
+
+  .heroTitle {
+    font-size: 34px;
+    line-height: 1.05;
+  }
+
+  .heroTitle::after {
+    width: 64px;
+    margin-top: 12px;
+  }
+
+  .heroSubtitle {
+    font-size: 14px;
+    margin-bottom: 14px;
+  }
+
+  .heroCtas {
+    gap: 10px;
+  }
+
+  .btnPrimary,
+  .btnGhost {
+    padding: 12px 16px;
+    font-size: 14px;
+    width: 100%;
+  }
+
+  /* Header polish */
   .headerInner {
     padding: 10px 12px;
     gap: 10px;
