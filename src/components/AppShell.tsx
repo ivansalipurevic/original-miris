@@ -32,6 +32,13 @@ export function AppShell({ children }: PropsWithChildren) {
   const [checkoutErrors, setCheckoutErrors] = useState<Record<string, string>>({});
   const location = useLocation();
   const cart = useCart();
+  const cartProducts = useMemo(() => new Map(allProducts.map((p) => [p.id, p])), []);
+
+  const newestCartProductId = useMemo(() => {
+    if (!cart.state.lines.length) return null;
+    const newest = cart.state.lines.reduce((acc, l) => (!acc || l.addedAt > acc.addedAt ? l : acc), null as any);
+    return newest?.productId ?? null;
+  }, [cart.state.lines]);
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -203,8 +210,12 @@ export function AppShell({ children }: PropsWithChildren) {
                 <>
                   <div className="cartLines">
                     {cart.state.lines.map((line) => {
-                      const p = allProducts.find((x) => x.id === line.productId);
+                      const p = cartProducts.get(line.productId);
                       if (!p) return null;
+                      const isDiscounted = cart.totals.itemsCount >= 2 && newestCartProductId === p.id;
+                      const lineTotal = isDiscounted
+                        ? p.priceKM * Math.max(0, line.qty - 1) + p.priceKM * 0.5
+                        : p.priceKM * line.qty;
                       return (
                         <div className="cartLine" key={line.productId}>
                           <div className="cartThumb">
@@ -229,7 +240,7 @@ export function AppShell({ children }: PropsWithChildren) {
                             </div>
                           </div>
                           <div className="cartLineTotal">
-                            {(p.priceKM * line.qty).toFixed(2).replace(".", ",")} KM
+                            {lineTotal.toFixed(2).replace(".", ",")} KM
                           </div>
                         </div>
                       );
@@ -237,26 +248,47 @@ export function AppShell({ children }: PropsWithChildren) {
                   </div>
 
                   <div className="cartSummary">
+                    {cart.totals.itemsCount === 1 ? (
+                      <div className="muted" style={{ fontSize: 12, lineHeight: 1.4 }}>
+                        Dodaj još 1 parfem i <strong>drugi</strong> dobija <strong>50% popusta</strong>.
+                      </div>
+                    ) : null}
                     <div className="cartSummaryRow">
                       <span className="muted">Subtotal</span>
                       <span className="cartSummaryValue">
                         {cart.totals.subtotalKM.toFixed(2).replace(".", ",")} KM
                       </span>
                     </div>
-                    <button
-                      className="drawerCta"
-                      type="button"
-                      onClick={() => {
-                        setCheckoutErrors({});
-                        setCheckoutDoneId(null);
-                        setIsCheckoutOpen(true);
-                      }}
-                    >
-                      Naruči
-                    </button>
-                    <button className="filtersResetBtn" type="button" onClick={cart.clear}>
-                      Očisti korpu
-                    </button>
+                    {cart.totals.discountKM > 0 ? (
+                      <div className="cartSummaryRow">
+                        <span className="muted">Popust (2. parfem -50%)</span>
+                        <span className="cartSummaryValue">
+                          -{cart.totals.discountKM.toFixed(2).replace(".", ",")} KM
+                        </span>
+                      </div>
+                    ) : null}
+                    <div className="cartSummaryRow">
+                      <span className="muted">Ukupno</span>
+                      <span className="cartSummaryValue">
+                        {cart.totals.totalKM.toFixed(2).replace(".", ",")} KM
+                      </span>
+                    </div>
+                    <div className="cartActions">
+                      <button
+                        className="cartActionBtn cartActionBtn--primary"
+                        type="button"
+                        onClick={() => {
+                          setCheckoutErrors({});
+                          setCheckoutDoneId(null);
+                          setIsCheckoutOpen(true);
+                        }}
+                      >
+                        Naruči
+                      </button>
+                      <button className="cartActionBtn" type="button" onClick={cart.clear}>
+                        Očisti korpu
+                      </button>
+                    </div>
                   </div>
                 </>
               )}
@@ -281,7 +313,7 @@ export function AppShell({ children }: PropsWithChildren) {
                   Podaci za dostavu
                 </h2>
                 <p className="checkoutSub muted">
-                  Ukupno: <strong>{cart.totals.subtotalKM.toFixed(2).replace(".", ",")} KM</strong> ({cart.totals.itemsCount} artikala)
+                  Ukupno: <strong>{cart.totals.totalKM.toFixed(2).replace(".", ",")} KM</strong> ({cart.totals.itemsCount} artikala)
                 </p>
               </div>
               <button className="checkoutClose" type="button" onClick={() => setIsCheckoutOpen(false)}>

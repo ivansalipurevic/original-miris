@@ -3,24 +3,9 @@ import { useSearchParams } from "react-router-dom";
 import { FiltersPanel, FiltersState } from "../components/FiltersPanel";
 import { Pagination } from "../components/Pagination";
 import { ProductGrid } from "../components/ProductGrid";
-import { SortSelect } from "../components/SortSelect";
 import { allProducts, mensProducts, womensProducts } from "../mock/products";
 
 export type ProductsMode = "all" | "za_nju" | "za_njega";
-
-const defaultFilters: FiltersState = {
-  inStock: false,
-  outOfStock: false,
-  minPrice: "",
-  maxPrice: "",
-};
-
-function parsePrice(input: string): number | null {
-  const normalized = input.replace(",", ".").trim();
-  if (!normalized) return null;
-  const value = Number(normalized);
-  return Number.isFinite(value) ? value : null;
-}
 
 export function ProductsPage({ mode }: { mode: ProductsMode }) {
   const PAGE_SIZE = 16;
@@ -39,7 +24,12 @@ export function ProductsPage({ mode }: { mode: ProductsMode }) {
     return Math.max(0, m);
   }, [products]);
 
+  const defaultFilters = useMemo<FiltersState>(
+    () => ({ minPrice: 0, maxPrice: Math.max(0, Math.ceil(maxKnownPrice)) }),
+    [maxKnownPrice],
+  );
   const [filters, setFilters] = useState<FiltersState>(defaultFilters);
+  const [q, setQ] = useState("");
   const [searchParams, setSearchParams] = useSearchParams();
 
   function setPage(nextPage: number) {
@@ -56,21 +46,20 @@ export function ProductsPage({ mode }: { mode: ProductsMode }) {
   }, [searchParams]);
 
   const filteredProducts = useMemo(() => {
-    const min = parsePrice(filters.minPrice);
-    const max = parsePrice(filters.maxPrice);
+    const min = Number.isFinite(filters.minPrice) ? filters.minPrice : 0;
+    const max = Number.isFinite(filters.maxPrice) ? filters.maxPrice : Math.ceil(maxKnownPrice);
+    const needle = q.trim().toLowerCase();
 
     return products.filter((p) => {
-      if (filters.inStock || filters.outOfStock) {
-        const ok =
-          (filters.inStock && p.available === true) ||
-          (filters.outOfStock && p.available === false);
-        if (!ok) return false;
+      if (needle) {
+        const hay = `${p.name ?? ""} ${p.brand ?? ""} ${p.description ?? ""}`.toLowerCase();
+        if (!hay.includes(needle)) return false;
       }
-      if (min !== null && p.priceKM < min) return false;
-      if (max !== null && p.priceKM > max) return false;
+      if (p.priceKM < min) return false;
+      if (p.priceKM > max) return false;
       return true;
     });
-  }, [products, filters]);
+  }, [products, filters, q, maxKnownPrice]);
 
   const totalPages = useMemo(
     () => Math.max(1, Math.ceil(filteredProducts.length / PAGE_SIZE)),
@@ -84,8 +73,21 @@ export function ProductsPage({ mode }: { mode: ProductsMode }) {
     const next = new URLSearchParams(searchParams);
     next.set("page", "1");
     setSearchParams(next);
+    setQ("");
+    setFilters(defaultFilters);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode]);
+
+  useEffect(() => {
+    // keep slider bounds in sync when dataset changes
+    setFilters((prev) => {
+      const max = defaultFilters.maxPrice;
+      const nextMin = Math.max(0, Math.min(prev.minPrice, max));
+      const nextMax = Math.max(nextMin, Math.min(prev.maxPrice, max));
+      if (nextMin === prev.minPrice && nextMax === prev.maxPrice) return prev;
+      return { minPrice: nextMin, maxPrice: nextMax };
+    });
+  }, [defaultFilters.maxPrice]);
 
   const pagedProducts = useMemo(() => {
     const start = (page - 1) * PAGE_SIZE;
@@ -98,7 +100,32 @@ export function ProductsPage({ mode }: { mode: ProductsMode }) {
         <h1>{title}</h1>
         <div className="pageHeaderMeta">
           <div className="muted">{filteredProducts.length} artikala</div>
-          <SortSelect />
+          <label className="search">
+            <span className="srOnly">Pretraga</span>
+            <span className="searchIcon" aria-hidden="true" />
+            <input
+              className="searchInput"
+              value={q}
+              onChange={(e) => {
+                setQ(e.target.value);
+                setPage(1);
+              }}
+              placeholder="Pretraži parfeme…"
+            />
+            {q.trim() ? (
+              <button
+                type="button"
+                className="searchClear"
+                onClick={() => {
+                  setQ("");
+                  setPage(1);
+                }}
+                aria-label="Očisti pretragu"
+              >
+                ×
+              </button>
+            ) : null}
+          </label>
         </div>
       </div>
 

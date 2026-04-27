@@ -56,12 +56,35 @@ export function HomePage() {
         <div className="sectionHeader">
           <h2>Zašto kupiti kod nas?</h2>
         </div>
-        <div className="infoPanel">
-          <p>
-            Kupovina kod nas znači sigurnost i kvalitet. Svi parfemi su <strong>100% originalni</strong>, sa
-            porijeklom iz provjerenih evropskih distributerskih kanala. Bez sumnje - samo autentični mirisi
-            koji traju!
-          </p>
+        <div className="why">
+          <div className="whyBody">
+            <p className="whyLead">
+              Kupovina kod nas znači sigurnost i kvalitet. Svi parfemi su <strong>100% originalni</strong>, sa porijeklom
+              iz provjerenih evropskih distributerskih kanala.
+            </p>
+            <div className="whyGrid">
+              <div className="whyCard">
+                <div className="whyCardTitle">Originalno</div>
+                <div className="whyCardText">Provjereno porijeklo i autentika — bez kompromisa.</div>
+              </div>
+              <div className="whyCard">
+                <div className="whyCardTitle">Premium kvalitet</div>
+                <div className="whyCardText">Mirisi koji traju i ostavljaju utisak, svaki dan.</div>
+              </div>
+              <div className="whyCard">
+                <div className="whyCardTitle">Brza dostava</div>
+                <div className="whyCardText">Obrada i isporuka u roku 1–2 radna dana.</div>
+              </div>
+              <div className="whyCard">
+                <div className="whyCardTitle">Sigurna kupovina</div>
+                <div className="whyCardText">Jasna pravila, podrška i bezbrižna narudžba.</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="whyMedia" aria-hidden="true">
+            <img className="whyImg" src="/originalmiris.png" alt="" />
+          </div>
         </div>
       </section>
 

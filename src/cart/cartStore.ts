@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { allProducts } from "../mock/products";
 import { CartLine, CartState, CartTotals } from "./cartTypes";
 
-const STORAGE_KEY = "original-miris:cart:v1";
+const STORAGE_KEY = "original-miris:cart:v2";
 
 function clampQty(qty: number) {
   if (!Number.isFinite(qty)) return 1;
@@ -17,7 +17,11 @@ function safeParse(json: string | null): CartState | null {
     const lines = Array.isArray(data.lines) ? data.lines : [];
     const cleaned: CartLine[] = lines
       .filter((l: any) => l && typeof l.productId === "string" && typeof l.qty === "number")
-      .map((l: any) => ({ productId: l.productId, qty: clampQty(l.qty) }));
+      .map((l: any, idx: number) => ({
+        productId: l.productId,
+        qty: clampQty(l.qty),
+        addedAt: typeof l.addedAt === "number" ? l.addedAt : Date.now() + idx,
+      }));
     return { lines: cleaned };
   } catch {
     return null;
@@ -28,13 +32,24 @@ function computeTotals(state: CartState): CartTotals {
   const map = new Map(allProducts.map((p) => [p.id, p]));
   let itemsCount = 0;
   let subtotalKM = 0;
+  let discountKM = 0;
+  let newest: { productId: string; addedAt: number } | null = null;
   for (const line of state.lines) {
     const p = map.get(line.productId);
     if (!p) continue;
     itemsCount += line.qty;
     subtotalKM += p.priceKM * line.qty;
+    if (!newest || line.addedAt > newest.addedAt) newest = { productId: line.productId, addedAt: line.addedAt };
   }
-  return { itemsCount, subtotalKM };
+
+  // Promo: 50% popusta na DRUGI parfem (najnovije dodani), na 1 kom.
+  if (itemsCount >= 2 && newest) {
+    const p = map.get(newest.productId);
+    if (p) discountKM = p.priceKM * 0.5;
+  }
+
+  const totalKM = Math.max(0, subtotalKM - discountKM);
+  return { itemsCount, subtotalKM, discountKM, totalKM };
 }
 
 export function useCartStore() {
@@ -50,7 +65,7 @@ export function useCartStore() {
     const q = clampQty(qty);
     setState((prev) => {
       const idx = prev.lines.findIndex((l) => l.productId === productId);
-      if (idx === -1) return { lines: [...prev.lines, { productId, qty: q }] };
+      if (idx === -1) return { lines: [...prev.lines, { productId, qty: q, addedAt: Date.now() }] };
       const next = prev.lines.slice();
       next[idx] = { ...next[idx], qty: clampQty(next[idx].qty + q) };
       return { lines: next };

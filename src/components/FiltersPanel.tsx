@@ -1,8 +1,6 @@
 export type FiltersState = {
-  inStock: boolean;
-  outOfStock: boolean;
-  minPrice: string;
-  maxPrice: string;
+  minPrice: number;
+  maxPrice: number;
 };
 
 export function FiltersPanel({
@@ -18,6 +16,12 @@ export function FiltersPanel({
   onChange: (next: FiltersState) => void;
   onClear: () => void;
 }) {
+  const max = Math.max(0, Math.ceil(maxKnownPrice));
+  const minValue = Math.max(0, Math.min(state.minPrice, state.maxPrice));
+  const maxValue = Math.max(0, Math.max(state.minPrice, state.maxPrice));
+  const minPct = max > 0 ? (minValue / max) * 100 : 0;
+  const maxPct = max > 0 ? (maxValue / max) * 100 : 0;
+
   return (
     <div className="filters filtersPremium">
       <div className="filtersHeader">
@@ -28,59 +32,51 @@ export function FiltersPanel({
       </div>
 
       <div className="filterBlock">
-        <div className="filterTitle">Dostupnost</div>
-        <label className="checkRow">
-          <input
-            className="filterCheckbox"
-            type="checkbox"
-            checked={state.outOfStock}
-            onChange={(e) => onChange({ ...state, outOfStock: e.target.checked })}
-          />
-          <span className="checkLabel">Nema na stanju</span>
-        </label>
-        <label className="checkRow">
-          <input
-            className="filterCheckbox"
-            type="checkbox"
-            checked={state.inStock}
-            onChange={(e) => onChange({ ...state, inStock: e.target.checked })}
-          />
-          <span className="checkLabel">Na stanju</span>
-        </label>
-      </div>
-
-      <div className="filterBlock">
         <div className="filterTitle">Cijena (KM)</div>
-        <div className="rangeRow">
-          <div className="rangeField">
-            <label className="rangeLabel muted" htmlFor="filter-min">
-              Od
-            </label>
-            <input
-              id="filter-min"
-              className="filterInput"
-              inputMode="decimal"
-              placeholder="0"
-              value={state.minPrice}
-              onChange={(e) => onChange({ ...state, minPrice: e.target.value })}
-            />
+        <div className="priceValues">
+          <div className="pricePill">
+            <span className="muted">Od</span> <strong>{minValue.toFixed(0)} KM</strong>
           </div>
-          <div className="rangeSep muted" aria-hidden="true">
-            —
+          <div className="pricePill">
+            <span className="muted">Do</span> <strong>{maxValue.toFixed(0)} KM</strong>
           </div>
-          <div className="rangeField">
-            <label className="rangeLabel muted" htmlFor="filter-max">
-              Do
-            </label>
-            <input
-              id="filter-max"
-              className="filterInput"
-              inputMode="decimal"
-              placeholder={maxKnownPrice.toFixed(2).replace(".", ",")}
-              value={state.maxPrice}
-              onChange={(e) => onChange({ ...state, maxPrice: e.target.value })}
-            />
-          </div>
+        </div>
+
+        <div
+          className="priceSlider"
+          style={
+            {
+              "--minPct": `${minPct}%`,
+              "--maxPct": `${maxPct}%`,
+            } as any
+          }
+        >
+          <input
+            aria-label="Minimalna cijena"
+            className="priceRange"
+            type="range"
+            min={0}
+            max={max}
+            step={1}
+            value={minValue}
+            onChange={(e) => {
+              const v = Math.max(0, Math.min(Number(e.target.value), maxValue));
+              onChange({ ...state, minPrice: v });
+            }}
+          />
+          <input
+            aria-label="Maksimalna cijena"
+            className="priceRange"
+            type="range"
+            min={0}
+            max={max}
+            step={1}
+            value={maxValue}
+            onChange={(e) => {
+              const v = Math.max(minValue, Math.min(Number(e.target.value), max));
+              onChange({ ...state, maxPrice: v });
+            }}
+          />
         </div>
         <div className="muted small filterHint">
           Najviša cijena u ovoj listi: {maxKnownPrice.toFixed(2).replace(".", ",")} KM
