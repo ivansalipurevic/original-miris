@@ -2978,14 +2978,33 @@ textarea:disabled {
     box-shadow: 0 10px 22px rgba(0, 0, 0, 0.06);
   }
 
-  .burgerBars,
+  /* Mobile hamburger: clear 3 lines */
+  .burgerBars {
+    position: relative;
+    width: 18px;
+    height: 2px;
+    background: rgba(17, 17, 17, 0.84);
+    border-radius: 2px;
+    display: block;
+  }
+
   .burgerBars::before,
   .burgerBars::after {
-    left: 12px;
-    right: 12px;
-    background: rgba(17, 17, 17, 0.82);
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
     height: 2px;
+    background: rgba(17, 17, 17, 0.84);
     border-radius: 2px;
+  }
+
+  .burgerBars::before {
+    transform: translateY(-7px);
+  }
+
+  .burgerBars::after {
+    transform: translateY(7px);
   }
 
   .mobileNav {
