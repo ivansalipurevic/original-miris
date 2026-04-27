@@ -7,6 +7,50 @@ function formatKM(value: number) {
   return `${value.toFixed(2).replace(".", ",")} KM`;
 }
 
+function splitNotes(text: string) {
+  const lines = text
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  const sections: Array<{ title: string; items: string[] }> = [];
+  let current: { title: string; items: string[] } | null = null;
+
+  function pushCurrent() {
+    if (current && (current.items.length || current.title)) sections.push(current);
+    current = null;
+  }
+
+  for (const line of lines) {
+    const isHeading =
+      /^(gornje|srednje|bazne)\s+note$/i.test(line) ||
+      /^(top|middle|heart|base)\s+notes$/i.test(line) ||
+      /^(gornje|srednje|bazne)\s+note:?$/i.test(line);
+
+    if (isHeading) {
+      pushCurrent();
+      current = { title: line.toUpperCase().replace(/:$/, ""), items: [] };
+      continue;
+    }
+
+    if (!current) current = { title: "", items: [] };
+
+    // split comma separated values into clean list items
+    const parts = line
+      .split(",")
+      .map((p) => p.trim())
+      .filter(Boolean);
+    if (parts.length >= 2) current.items.push(...parts);
+    else current.items.push(line);
+  }
+
+  pushCurrent();
+
+  // If no headings detected, return single section
+  if (!sections.some((s) => s.title)) return [{ title: "", items: lines }];
+  return sections;
+}
+
 export function ProductDetailsPage() {
   const { handle } = useParams();
   const { add, state } = useCart();
@@ -109,13 +153,18 @@ export function ProductDetailsPage() {
               <div className="detailsBoxTitle">Opis proizvoda</div>
               <div className="detailsDesc">
                 {product.description ? (
-                  product.description.split("\n").map((line, idx) =>
-                    line.trim() ? (
-                      <p key={`${idx}-${line}`}>{line}</p>
-                    ) : (
-                      <div key={`sp-${idx}`} style={{ height: 8 }} />
-                    ),
-                  )
+                  <div className="detailsNotes">
+                    {splitNotes(product.description).map((sec, idx) => (
+                      <div key={`${idx}-${sec.title}`} className="noteSection">
+                        {sec.title ? <div className="noteTitle">{sec.title}</div> : null}
+                        <ul className="noteList">
+                          {sec.items.map((it) => (
+                            <li key={`${sec.title}-${it}`}>{it}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </div>
                 ) : (
                   <p className="muted">Opis nije dostupan.</p>
                 )}

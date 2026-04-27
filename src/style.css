@@ -1288,6 +1288,74 @@ code {
   line-height: 1.6;
 }
 
+.detailsNotes {
+  display: grid;
+  gap: 14px;
+}
+
+.noteSection {
+  border-radius: 16px;
+  border: 1px solid rgba(17, 17, 17, 0.08);
+  background: rgba(255, 255, 255, 0.7);
+  padding: 12px 12px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.noteTitle {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(17, 17, 17, 0.72);
+  margin-bottom: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(199, 162, 75, 0.35);
+  background: radial-gradient(circle at 25% 25%, rgba(199, 162, 75, 0.18), transparent 55%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(245, 242, 238, 0.92));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.noteTitle::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 30%, rgba(199, 162, 75, 0.9), rgba(199, 162, 75, 0.15));
+  border: 1px solid rgba(199, 162, 75, 0.55);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.08);
+}
+
+.noteList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.noteList li {
+  position: relative;
+  padding-left: 16px;
+  color: rgba(17, 17, 17, 0.68);
+  line-height: 1.45;
+}
+
+.noteList li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 30%, rgba(199, 162, 75, 0.9), rgba(199, 162, 75, 0.18));
+  border: 1px solid rgba(199, 162, 75, 0.5);
+}
+
 .detailsInfoGrid {
   display: grid;
   gap: 12px;
@@ -1388,6 +1456,40 @@ code {
   }
 
   /* keep pagination compact on mobile */
+
+  /* Product details notes: tighter on mobile */
+  .detailsBox {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .noteSection {
+    padding: 10px 10px;
+    border-radius: 14px;
+  }
+
+  .noteTitle {
+    font-size: 9px;
+    letter-spacing: 0.16em;
+    padding: 5px 9px;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .noteList {
+    gap: 7px;
+  }
+
+  .noteList li {
+    padding-left: 14px;
+    font-size: 13px;
+  }
+
+  .noteList li::before {
+    width: 6px;
+    height: 6px;
+    top: 0.55em;
+  }
 }
 
 @media (max-width: 520px) {
