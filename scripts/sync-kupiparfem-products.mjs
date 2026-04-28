@@ -80,7 +80,12 @@ function pickPrice(product) {
   const v = product?.variants?.[0];
   const price = kmFromCentsOrString(v?.price);
   const compare = kmFromCentsOrString(v?.compare_at_price);
-  return { priceKM: price ?? 0, compareAtPriceKM: compare ?? undefined };
+  const priceKM = price ?? 0;
+  // Guard against bogus compare_at_price values from the feed (e.g. 10.00).
+  // We only treat it as a "crossed out" price when it's a real higher MSRP.
+  const compareAtPriceKM =
+    typeof compare === "number" && compare > priceKM ? compare : undefined;
+  return { priceKM, compareAtPriceKM };
 }
 
 function pickAvailable(product) {
@@ -149,7 +154,9 @@ async function main() {
 
     const descriptionHtml = details?.description ?? prod?.body_html;
     const description = stripHtml(descriptionHtml);
-    const brand = details?.vendor ? String(details.vendor) : prod?.vendor ? String(prod.vendor) : undefined;
+    const vendor = details?.vendor ? String(details.vendor) : prod?.vendor ? String(prod.vendor) : undefined;
+    // Hide internal/placeholder vendor label from storefront UI
+    const brand = vendor && vendor.toLowerCase() === "gala" ? undefined : vendor;
 
     // map to collection based on actual collection membership
     // if in both, use a simple name heuristic to avoid misclassification

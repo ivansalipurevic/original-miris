@@ -189,17 +189,20 @@ export function ProductDetailsPage() {
                 </div>
                 <div className="infoRow">
                   <div className="infoKey">Povrat</div>
-                  <div className="infoVal">Pogledaj uslove u “Uslovi i pravila”.</div>
+                  <div className="infoVal">
+                    Detalji povrata i reklamacija su u{" "}
+                    <Link className="inlineLink" to="/policies/uslovi-i-pravila">
+                      Uslovima i pravilima
+                    </Link>
+                    .
+                  </div>
                 </div>
               </div>
-              <div className="detailsInfoLinks">
-                <Link className="detailsMiniLink" to="/contact">
+              <div className="detailsInfoCtas" aria-label="Korisni linkovi">
+                <Link className="detailsCta" to="/contact">
                   Kontakt
                 </Link>
-                <span className="miniSep" aria-hidden>
-                  ·
-                </span>
-                <Link className="detailsMiniLink" to="/policies/uslovi-i-pravila">
+                <Link className="detailsCta detailsCta--ghost" to="/policies/uslovi-i-pravila">
                   Uslovi i pravila
                 </Link>
               </div>
