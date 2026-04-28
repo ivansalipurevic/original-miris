@@ -68,7 +68,7 @@ function Stars({ count }: { count: number }) {
 
 export function ReviewsPage() {
   return (
-    <div className="page">
+    <div className="page page--reviews">
       <div className="pageHeader">
         <div>
           <p className="reviewsEyebrow">Utisci kupaca</p>

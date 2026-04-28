@@ -1537,6 +1537,27 @@ code {
 }
 
 @media (max-width: 640px) {
+  .page--reviews .pageHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .page--reviews .pageHeaderMeta {
+    width: 100%;
+  }
+
+  .page--reviews .pageHeaderMeta .btnGhost {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .page--reviews .pageHeader h1 {
+    font-size: 26px;
+    line-height: 1.12;
+    letter-spacing: -0.04em;
+  }
+
   .reviewsHeroCard {
     padding: 18px 16px;
     border-radius: 20px;
@@ -1569,6 +1590,15 @@ code {
 
   .reviewsHeroCopy {
     font-size: 14px;
+  }
+
+  .reviewHead {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .reviewPill {
+    padding: 8px 10px;
   }
 
   .reviewCard {
