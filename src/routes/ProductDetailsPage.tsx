@@ -76,7 +76,7 @@ export function ProductDetailsPage() {
   const isInCart = state.lines.some((l) => l.productId === product.id);
 
   return (
-    <div className="page">
+    <div className="page page--details">
       <div className="details">
         <section className="detailsMedia">
           <div className="detailsCrumbs">
@@ -111,11 +111,17 @@ export function ProductDetailsPage() {
               <div className={hasDiscount ? "detailsPrices detailsPrices--sale" : "detailsPrices"}>
                 {hasDiscount ? (
                   <>
-                    <div className="priceOld">{formatKM(product.compareAtPriceKM!)}</div>
-                    <div className="priceNow">{formatKM(product.priceKM)}</div>
+                    <div className="priceOld" aria-label={`Stara cijena: ${formatKM(product.compareAtPriceKM!)}`}>
+                      {formatKM(product.compareAtPriceKM!)}
+                    </div>
+                    <div className="priceNow" aria-label={`Snižena cijena: ${formatKM(product.priceKM)}`}>
+                      {formatKM(product.priceKM)}
+                    </div>
                   </>
                 ) : (
-                  <div className="priceNow">{formatKM(product.priceKM)}</div>
+                  <div className="priceNow" aria-label={`Cijena: ${formatKM(product.priceKM)}`}>
+                    {formatKM(product.priceKM)}
+                  </div>
                 )}
               </div>
               {hasDiscount ? (
@@ -175,7 +181,11 @@ export function ProductDetailsPage() {
               <div className="detailsInfoGrid">
                 <div className="infoRow">
                   <div className="infoKey">Dostava</div>
-                  <div className="infoVal">Za narudžbe iznad 150 KM dostava je besplatna.</div>
+                  <div className="infoVal">
+                    Dostava je{" "}
+                    <span className="infoEmph">besplatna</span> za narudžbe preko{" "}
+                    <span className="infoHighlight">150 KM</span>.
+                  </div>
                 </div>
                 <div className="infoRow">
                   <div className="infoKey">Povrat</div>
@@ -196,6 +206,29 @@ export function ProductDetailsPage() {
             </div>
           </div>
         </aside>
+      </div>
+
+      <div className="detailsMobileBar" role="region" aria-label="Kupovina">
+        <div className="detailsMobileBarInner">
+          <div className="detailsMobilePrice">
+            {hasDiscount ? (
+              <>
+                <div className="priceOld">{formatKM(product.compareAtPriceKM!)}</div>
+                <div className="priceNow">{formatKM(product.priceKM)}</div>
+              </>
+            ) : (
+              <div className="priceNow">{formatKM(product.priceKM)}</div>
+            )}
+          </div>
+          <button
+            className={isInCart ? "detailsAdd detailsAdd--added" : "detailsAdd"}
+            type="button"
+            onClick={() => add(product.id, 1)}
+            disabled={false}
+          >
+            {isInCart ? "Dodato" : "Dodaj"}
+          </button>
+        </div>
       </div>
     </div>
   );
