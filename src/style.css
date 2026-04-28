@@ -1524,6 +1524,10 @@ code {
   .detailsMedia {
     padding-top: 56px;
   }
+
+  .reviewsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 @media (max-width: 860px) {
@@ -1533,6 +1537,11 @@ code {
 }
 
 @media (max-width: 640px) {
+  .reviewsHeroCard {
+    padding: 18px 16px;
+    border-radius: 20px;
+  }
+
   .reviewsHeroTop {
     grid-template-columns: 1fr;
   }
@@ -1543,6 +1552,48 @@ code {
 
   .reviewsGrid {
     grid-template-columns: 1fr;
+  }
+
+  .reviewsScore {
+    gap: 12px;
+  }
+
+  .reviewsScoreNum {
+    font-size: 34px;
+  }
+
+  .reviewsBadge {
+    font-size: 9px;
+    padding: 9px 10px;
+  }
+
+  .reviewsHeroCopy {
+    font-size: 14px;
+  }
+
+  .reviewCard {
+    padding: 14px 14px 12px;
+    border-radius: 18px;
+  }
+
+  .reviewText {
+    font-size: 14px;
+  }
+
+  .reviewsBottomCard {
+    padding: 18px 16px;
+    border-radius: 20px;
+  }
+
+  .reviewsBottomCtas {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .reviewsBottomCtas .btnPrimary,
+  .reviewsBottomCtas .btnGhost {
+    width: 100%;
+    justify-content: center;
   }
 
   .page--details {
