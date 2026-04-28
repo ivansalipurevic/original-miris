@@ -29,6 +29,7 @@ body {
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
   background: var(--bg);
   color: var(--text);
+  overflow-x: hidden;
 }
 
 code {
@@ -60,6 +61,7 @@ code {
   min-height: 100%;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
 .topbar {
@@ -1586,6 +1588,8 @@ code {
   .reviewsBadge {
     font-size: 9px;
     padding: 9px 10px;
+    max-width: 100%;
+    word-break: break-word;
   }
 
   .reviewsHeroCopy {
@@ -1599,6 +1603,9 @@ code {
 
   .reviewPill {
     padding: 8px 10px;
+    white-space: normal;
+    line-height: 1.2;
+    word-break: break-word;
   }
 
   .reviewCard {
@@ -3052,6 +3059,10 @@ textarea:disabled {
   align-items: center;
 }
 
+.reviewsHeroTop > * {
+  min-width: 0;
+}
+
 .reviewsScore {
   display: flex;
   align-items: center;
@@ -3163,6 +3174,7 @@ textarea:disabled {
   background: radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.22), transparent 58%),
     linear-gradient(180deg, rgba(239, 68, 68, 0.98), rgba(185, 28, 28, 0.98));
   box-shadow: 0 12px 26px rgba(220, 38, 38, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  max-width: 100%;
   white-space: nowrap;
 }
 
