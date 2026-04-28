@@ -151,7 +151,7 @@ export function ProductDetailsPage() {
               </div>
               <div className="trustItem">
                 <span className="trustDot" aria-hidden />
-                Podrška: Kontakt stranica
+                1000+ zadovoljnih kupaca
               </div>
             </div>
 
@@ -199,8 +199,8 @@ export function ProductDetailsPage() {
                 </div>
               </div>
               <div className="detailsInfoCtas" aria-label="Korisni linkovi">
-                <Link className="detailsCta" to="/contact">
-                  Kontakt
+                <Link className="detailsCta" to="/utisci">
+                  Utisci
                 </Link>
                 <Link className="detailsCta detailsCta--ghost" to="/policies/uslovi-i-pravila">
                   Uslovi i pravila

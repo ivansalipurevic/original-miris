@@ -4,11 +4,11 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import { App } from "./App";
 
 import { CartProvider } from "./cart/CartContext";
-import { ContactPage } from "./routes/ContactPage";
 import { HomePage } from "./routes/HomePage";
 import { PoliciesPage } from "./routes/PoliciesPage";
 import { ProductDetailsPage } from "./routes/ProductDetailsPage";
 import { ProductsPage } from "./routes/ProductsPage";
+import { ReviewsPage } from "./routes/ReviewsPage";
 
 const router = createBrowserRouter([
   {
@@ -20,7 +20,7 @@ const router = createBrowserRouter([
       { path: "product/:handle", element: <ProductDetailsPage /> },
       { path: "collections/za-nju", element: <ProductsPage mode="za_nju" /> },
       { path: "collections/za-njega", element: <ProductsPage mode="za_njega" /> },
-      { path: "contact", element: <ContactPage /> },
+      { path: "utisci", element: <ReviewsPage /> },
       { path: "policies/:slug", element: <PoliciesPage /> },
     ],
   },

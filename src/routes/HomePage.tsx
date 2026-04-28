@@ -16,8 +16,8 @@ export function HomePage() {
             <Link className="btnPrimary" to="/products">
               Pogledaj ponudu
             </Link>
-            <Link className="btnGhost" to="/contact">
-              Kontakt
+            <Link className="btnGhost" to="/utisci">
+              Utisci kupaca
             </Link>
           </div>
           </div>

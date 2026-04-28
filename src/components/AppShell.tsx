@@ -12,7 +12,7 @@ const navItems: NavItem[] = [
   { to: "/products", label: "Svi proizvodi" },
   { to: "/collections/za-njega", label: "Muška kolekcija" },
   { to: "/collections/za-nju", label: "Ženska kolekcija" },
-  { to: "/contact", label: "Kontakt" },
+  { to: "/utisci", label: "Utisci" },
 ];
 
 export function AppShell({ children }: PropsWithChildren) {
