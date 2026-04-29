@@ -109,6 +109,27 @@ function stripHtml(html) {
     .trim();
 }
 
+function extractSizeML({ details, prod }) {
+  const candidates = [
+    details?.variants?.[0]?.public_title,
+    details?.variants?.[0]?.title,
+    details?.variants?.[0]?.name,
+    details?.title,
+    prod?.title,
+  ]
+    .map((x) => (x == null ? "" : String(x)))
+    .filter(Boolean);
+
+  for (const s of candidates) {
+    const m = s.match(/(\d{2,3})\s*ml\b/i);
+    if (m?.[1]) {
+      const n = Number(m[1]);
+      if (Number.isFinite(n) && n >= 5 && n <= 300) return n;
+    }
+  }
+  return undefined;
+}
+
 async function mapLimit(items, limit, fn) {
   const results = new Array(items.length);
   let i = 0;
@@ -157,6 +178,7 @@ async function main() {
     const vendor = details?.vendor ? String(details.vendor) : prod?.vendor ? String(prod.vendor) : undefined;
     // Hide internal/placeholder vendor label from storefront UI
     const brand = vendor && vendor.toLowerCase() === "gala" ? undefined : vendor;
+    const sizeML = extractSizeML({ details, prod });
 
     // map to collection based on actual collection membership
     // if in both, use a simple name heuristic to avoid misclassification
@@ -181,6 +203,7 @@ async function main() {
       brand,
       priceKM,
       compareAtPriceKM,
+      sizeML,
       available,
       collection,
       imageUrl,
@@ -199,6 +222,7 @@ export type Product = {
   brand?: string;
   priceKM: number;
   compareAtPriceKM?: number;
+  sizeML?: number;
   available: boolean;
   collection: CollectionKey;
   imageUrl?: string;
@@ -214,6 +238,7 @@ ${rows
       r.brand ? `brand: ${toTSString(r.brand)}` : null,
       `priceKM: ${Number(r.priceKM)}`,
       r.compareAtPriceKM ? `compareAtPriceKM: ${Number(r.compareAtPriceKM)}` : null,
+      r.sizeML ? `sizeML: ${Number(r.sizeML)}` : null,
       `available: ${Boolean(r.available)}`,
       `collection: ${toTSString(r.collection)}`,
       r.imageUrl ? `imageUrl: ${toTSString(r.imageUrl)}` : null,

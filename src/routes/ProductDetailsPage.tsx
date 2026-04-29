@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { allProducts } from "../mock/products";
 import { useCart } from "../cart/CartContext";
 
@@ -56,6 +56,7 @@ export function ProductDetailsPage() {
   const { add, state } = useCart();
 
   const product = useMemo(() => allProducts.find((p) => p.id === handle), [handle]);
+  const [qty, setQty] = useState(1);
 
   if (!product) {
     return (
@@ -74,6 +75,7 @@ export function ProductDetailsPage() {
   const savingsKM = hasDiscount ? Math.max(0, (product.compareAtPriceKM ?? 0) - product.priceKM) : 0;
   const savingsPct = hasDiscount && product.compareAtPriceKM ? Math.round((savingsKM / product.compareAtPriceKM) * 100) : 0;
   const isInCart = state.lines.some((l) => l.productId === product.id);
+  const safeQty = Math.max(1, Math.min(99, Math.floor(qty || 1)));
 
   return (
     <div className="page page--details">
@@ -106,6 +108,11 @@ export function ProductDetailsPage() {
           <div className="detailsSticky">
             {product.brand ? <div className="detailsBrand">{product.brand}</div> : null}
             <h1 className="detailsTitle">{product.name}</h1>
+            {product.sizeML ? (
+              <div className="detailsMetaRow" aria-label="Detalji proizvoda">
+                <div className="detailsMetaPill">{product.sizeML} ml</div>
+              </div>
+            ) : null}
 
             <div className="detailsPriceRow">
               <div className={hasDiscount ? "detailsPrices detailsPrices--sale" : "detailsPrices"}>
@@ -131,14 +138,38 @@ export function ProductDetailsPage() {
               ) : null}
             </div>
 
-            <button
-              className={isInCart ? "detailsAdd detailsAdd--added" : "detailsAdd"}
-              type="button"
-              onClick={() => add(product.id, 1)}
-              disabled={false}
-            >
-              {isInCart ? "Dodato u korpu" : "Dodaj u korpu"}
-            </button>
+            <div className="detailsBuyActions" aria-label="Kupovina">
+              <div className="detailsQty" aria-label="Količina">
+                <button
+                  className="qtyBtn"
+                  type="button"
+                  onClick={() => setQty((q) => Math.max(1, Math.floor((q || 1) - 1)))}
+                  aria-label="Smanji količinu"
+                >
+                  −
+                </button>
+                <div className="qtyVal" aria-label={`Količina: ${safeQty}`}>
+                  {safeQty}
+                </div>
+                <button
+                  className="qtyBtn"
+                  type="button"
+                  onClick={() => setQty((q) => Math.min(99, Math.floor((q || 1) + 1)))}
+                  aria-label="Povećaj količinu"
+                >
+                  +
+                </button>
+              </div>
+
+              <button
+                className={isInCart ? "detailsAdd detailsAdd--added" : "detailsAdd"}
+                type="button"
+                onClick={() => add(product.id, safeQty)}
+                disabled={false}
+              >
+                {isInCart ? `Dodaj još (x${safeQty})` : `Dodaj u korpu (x${safeQty})`}
+              </button>
+            </div>
 
             <div className="detailsTrust">
               <div className="trustItem">
@@ -223,13 +254,34 @@ export function ProductDetailsPage() {
               <div className="priceNow">{formatKM(product.priceKM)}</div>
             )}
           </div>
+          <div className="detailsMobileQty" aria-label="Količina">
+            <button
+              className="qtyBtn"
+              type="button"
+              onClick={() => setQty((q) => Math.max(1, Math.floor((q || 1) - 1)))}
+              aria-label="Smanji količinu"
+            >
+              −
+            </button>
+            <div className="qtyVal" aria-label={`Količina: ${safeQty}`}>
+              {safeQty}
+            </div>
+            <button
+              className="qtyBtn"
+              type="button"
+              onClick={() => setQty((q) => Math.min(99, Math.floor((q || 1) + 1)))}
+              aria-label="Povećaj količinu"
+            >
+              +
+            </button>
+          </div>
           <button
             className={isInCart ? "detailsAdd detailsAdd--added" : "detailsAdd"}
             type="button"
-            onClick={() => add(product.id, 1)}
+            onClick={() => add(product.id, safeQty)}
             disabled={false}
           >
-            {isInCart ? "Dodato" : "Dodaj"}
+            {isInCart ? `Dodaj x${safeQty}` : `Dodaj x${safeQty}`}
           </button>
         </div>
       </div>
