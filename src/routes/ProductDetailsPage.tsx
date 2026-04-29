@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { allProducts } from "../mock/products";
 import { useCart } from "../cart/CartContext";
 
@@ -57,6 +57,8 @@ export function ProductDetailsPage() {
 
   const product = useMemo(() => allProducts.find((p) => p.id === handle), [handle]);
   const [qty, setQty] = useState(1);
+  const [toast, setToast] = useState<string | null>(null);
+  const toastTimerRef = useRef<number | null>(null);
 
   if (!product) {
     return (
@@ -76,6 +78,18 @@ export function ProductDetailsPage() {
   const savingsPct = hasDiscount && product.compareAtPriceKM ? Math.round((savingsKM / product.compareAtPriceKM) * 100) : 0;
   const isInCart = state.lines.some((l) => l.productId === product.id);
   const safeQty = Math.max(1, Math.min(99, Math.floor(qty || 1)));
+
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
+    };
+  }, []);
+
+  function showToast(message: string) {
+    setToast(message);
+    if (toastTimerRef.current) window.clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = window.setTimeout(() => setToast(null), 2200);
+  }
 
   return (
     <div className="page page--details">
@@ -164,10 +178,13 @@ export function ProductDetailsPage() {
               <button
                 className={isInCart ? "detailsAdd detailsAdd--added" : "detailsAdd"}
                 type="button"
-                onClick={() => add(product.id, safeQty)}
+                onClick={() => {
+                  add(product.id, safeQty);
+                  showToast(`Uspješno dodato u korpu (x${safeQty})`);
+                }}
                 disabled={false}
               >
-                {isInCart ? `Dodaj još (x${safeQty})` : `Dodaj u korpu (x${safeQty})`}
+                Dodaj u korpu
               </button>
             </div>
 
@@ -278,12 +295,19 @@ export function ProductDetailsPage() {
           <button
             className={isInCart ? "detailsAdd detailsAdd--added" : "detailsAdd"}
             type="button"
-            onClick={() => add(product.id, safeQty)}
+            onClick={() => {
+              add(product.id, safeQty);
+              showToast(`Uspješno dodato u korpu (x${safeQty})`);
+            }}
             disabled={false}
           >
-            {isInCart ? `Dodaj x${safeQty}` : `Dodaj x${safeQty}`}
+            Dodaj
           </button>
         </div>
+      </div>
+
+      <div className={toast ? "toast toast--show" : "toast"} role="status" aria-live="polite" aria-atomic="true">
+        <div className="toastInner">{toast ?? ""}</div>
       </div>
     </div>
   );

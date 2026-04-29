@@ -1505,6 +1505,41 @@ code {
   display: none;
 }
 
+.toast {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 92px;
+  z-index: 70;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 180ms ease, transform 180ms ease;
+}
+
+.toastInner {
+  max-width: min(520px, 100%);
+  width: fit-content;
+  padding: 12px 14px;
+  border-radius: 16px;
+  color: rgba(255, 255, 255, 0.96);
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  background: radial-gradient(520px 220px at 0% 0%, rgba(199, 162, 75, 0.14), transparent 60%),
+    linear-gradient(180deg, rgba(17, 17, 17, 0.92), rgba(0, 0, 0, 0.92));
+  border: 1px solid rgba(199, 162, 75, 0.24);
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  text-align: center;
+}
+
+.toast--show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 .detailsInfoLinks {
   margin-top: 12px;
   display: flex;
@@ -1799,6 +1834,10 @@ code {
     font-size: 10px;
     letter-spacing: 0.14em;
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.16);
+  }
+
+  .toast {
+    bottom: 116px;
   }
 
   .detailsBuyActions {
