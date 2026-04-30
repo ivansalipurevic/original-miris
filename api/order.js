@@ -6,6 +6,28 @@ function json(res, statusCode, body) {
   res.end(JSON.stringify(body));
 }
 
+async function readJsonBody(req) {
+  // Vercel Node functions may provide parsed req.body, but not always.
+  if (req.body && typeof req.body === "object") return req.body;
+  if (typeof req.body === "string") {
+    try {
+      return JSON.parse(req.body);
+    } catch {
+      return null;
+    }
+  }
+
+  const chunks = [];
+  for await (const chunk of req) chunks.push(Buffer.from(chunk));
+  const raw = Buffer.concat(chunks).toString("utf8").trim();
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
 function escapeHtml(value) {
   return String(value ?? "")
     .replaceAll("&", "&amp;")
@@ -124,49 +146,64 @@ function renderCustomerHtml(order) {
 }
 
 module.exports = async (req, res) => {
-  if (req.method !== "POST") return json(res, 405, { ok: false, error: "Method not allowed" });
+  try {
+    if (req.method !== "POST") return json(res, 405, { ok: false, error: "Method not allowed" });
 
-  const parsed = validateOrderPayload(req.body);
-  if (!parsed.ok) return json(res, 400, { ok: false, error: parsed.error });
-  const order = parsed.value;
+    const body = await readJsonBody(req);
+    const parsed = validateOrderPayload(body);
+    if (!parsed.ok) return json(res, 400, { ok: false, error: parsed.error });
+    const order = parsed.value;
 
-  const host = process.env.MAILTRAP_HOST;
-  const port = Number(process.env.MAILTRAP_PORT || 587);
-  const user = process.env.MAILTRAP_USER;
-  const pass = process.env.MAILTRAP_PASS;
-  const from = process.env.MAIL_FROM;
-  const adminTo = process.env.ADMIN_EMAIL_TO;
+    const host = process.env.MAILTRAP_HOST;
+    const port = Number(process.env.MAILTRAP_PORT || 587);
+    const user = process.env.MAILTRAP_USER;
+    const pass = process.env.MAILTRAP_PASS;
+    const from = process.env.MAIL_FROM;
+    const adminTo = process.env.ADMIN_EMAIL_TO;
 
-  if (!host || !user || !pass || !from || !adminTo) {
-    return json(res, 500, { ok: false, error: "Missing email env vars" });
+    if (!host || !user || !pass || !from || !adminTo) {
+      return json(res, 500, {
+        ok: false,
+        error: "Missing email env vars",
+        missing: {
+          MAILTRAP_HOST: !host,
+          MAILTRAP_USER: !user,
+          MAILTRAP_PASS: !pass,
+          MAIL_FROM: !from,
+          ADMIN_EMAIL_TO: !adminTo,
+        },
+      });
+    }
+
+    const transporter = nodemailer.createTransport({
+      host,
+      port,
+      auth: { user, pass },
+    });
+
+    const subject = "Potvrda narudžbine — Original Miris";
+    const adminSubject = `Nova narudžba — ${order.customer.email}`;
+
+    await transporter.sendMail({
+      from,
+      to: order.customer.email,
+      replyTo: from,
+      subject,
+      html: renderCustomerHtml(order),
+      text: renderAdminText(order),
+    });
+
+    await transporter.sendMail({
+      from,
+      to: adminTo,
+      replyTo: order.customer.email,
+      subject: adminSubject,
+      text: renderAdminText(order),
+    });
+
+    return json(res, 200, { ok: true });
+  } catch (err) {
+    return json(res, 500, { ok: false, error: err instanceof Error ? err.message : "Unknown error" });
   }
-
-  const transporter = nodemailer.createTransport({
-    host,
-    port,
-    auth: { user, pass },
-  });
-
-  const subject = "Potvrda narudžbine — Original Miris";
-  const adminSubject = `Nova narudžba — ${order.customer.email}`;
-
-  await transporter.sendMail({
-    from,
-    to: order.customer.email,
-    replyTo: from,
-    subject,
-    html: renderCustomerHtml(order),
-    text: renderAdminText(order),
-  });
-
-  await transporter.sendMail({
-    from,
-    to: adminTo,
-    replyTo: order.customer.email,
-    subject: adminSubject,
-    text: renderAdminText(order),
-  });
-
-  return json(res, 200, { ok: true });
 };
 
