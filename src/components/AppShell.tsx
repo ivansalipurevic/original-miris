@@ -75,7 +75,7 @@ export function AppShell({ children }: PropsWithChildren) {
               <span className="topbarSep" aria-hidden="true" />
               <span className="topbarItem">POVRAĆAJ NOVCA 14 DANA</span>
               <span className="topbarSep" aria-hidden="true" />
-              <span className="topbarItem">BRZA DOSTAVA 1–2 DANA</span>
+              <span className="topbarItem">DOSTAVA 1–3 RADNA DANA</span>
               <span className="topbarSep" aria-hidden="true" />
             </div>
             <div className="topbarGroup" aria-hidden="true">
@@ -85,7 +85,7 @@ export function AppShell({ children }: PropsWithChildren) {
               <span className="topbarSep" aria-hidden="true" />
               <span className="topbarItem">POVRAĆAJ NOVCA 14 DANA</span>
               <span className="topbarSep" aria-hidden="true" />
-              <span className="topbarItem">BRZA DOSTAVA 1–2 DANA</span>
+              <span className="topbarItem">DOSTAVA 1–3 RADNA DANA</span>
               <span className="topbarSep" aria-hidden="true" />
             </div>
           </div>
