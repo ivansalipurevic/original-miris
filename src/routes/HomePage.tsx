@@ -1,30 +1,37 @@
 import { Link } from "react-router-dom";
+import { ProductCard } from "../components/ProductCard";
 import { ProductGrid } from "../components/ProductGrid";
-import { discountedProducts } from "../mock/products";
+import { discountedProducts, staffPickProducts } from "../mock/products";
 
 export function HomePage() {
   return (
     <div className="page">
-      <section className="hero">
-        <div className="heroLayout">
-          <div className="heroInner">
-          <h1 className="heroTitle">Originalni parfemi</h1>
-          <p className="heroSubtitle">
-            Provjereno porijeklo i premium kvalitet. Najbolji mirisi — brzo, sigurno i jednostavno.
-          </p>
-          <div className="heroCtas">
-            <Link className="btnPrimary" to="/products">
-              Pogledaj ponudu
+      <section className="section recSection">
+        <div className="recShell">
+          <header className="recHead">
+            <div className="recHeadMain">
+              <p className="recKicker">Istaknuto od tima</p>
+              <h2 className="recHeading">Naša preporuka</h2>
+              <p className="recLead">
+                Četiri parfema koja se najčešće biraju — <strong>preko 100 narudžbi</strong> u zadnjih mjeseci
+                samo na ove favorite.
+              </p>
+            </div>
+            <div className="recStat" aria-label="Popularnost">
+              <span className="recStatValue">100+</span>
+              <span className="recStatLabel">narudžbi</span>
+            </div>
+          </header>
+          <div className="recGrid">
+            {staffPickProducts.map((p) => (
+              <ProductCard key={p.id} product={p} />
+            ))}
+          </div>
+          <footer className="recFooter">
+            <Link className="recLink" to="/products">
+              Cjelokupna ponuda
             </Link>
-            <Link className="btnGhost" to="/utisci">
-              Utisci kupaca
-            </Link>
-          </div>
-          </div>
-
-          <div className="heroMedia">
-            <img className="heroLogo" src="/novilogo.png" alt="Original Parfem" />
-          </div>
+          </footer>
         </div>
       </section>
 
