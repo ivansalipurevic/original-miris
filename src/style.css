@@ -180,18 +180,34 @@ code {
   max-width: var(--max);
   margin: 0 auto;
   padding: 14px 16px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  grid-template-rows: auto auto;
+  align-items: center;
+  column-gap: 12px;
+  row-gap: 6px;
+}
+
+.headerStart {
+  grid-column: 1;
+  grid-row: 1;
+  justify-self: start;
   display: flex;
   align-items: center;
-  gap: 16px;
+  min-width: 0;
 }
 
 .brand {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: center;
   text-decoration: none;
   color: var(--text);
   font-weight: 800;
   letter-spacing: -0.02em;
   display: inline-flex;
   align-items: center;
+  min-width: 0;
 }
 
 .brandLogo {
@@ -203,19 +219,23 @@ code {
 .brandText {
   margin-left: 10px;
   font-weight: 900;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  font-size: 12px;
-  line-height: 1;
+  font-size: 11px;
+  line-height: 1.15;
   color: rgba(17, 17, 17, 0.82);
 }
 
 .nav {
+  grid-column: 1 / -1;
+  grid-row: 2;
   display: flex;
   gap: 14px;
   align-items: center;
-  flex: 1;
   justify-content: center;
+  flex-wrap: wrap;
+  padding-top: 8px;
+  border-top: 1px solid rgba(17, 17, 17, 0.06);
 }
 
 .navLink {
@@ -258,9 +278,74 @@ code {
 }
 
 .headerActions {
+  grid-column: 3;
+  grid-row: 1;
+  justify-self: end;
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.headerSearchWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchTrigger {
+  appearance: none;
+  border: 1px solid rgba(17, 17, 17, 0.18);
+  background: linear-gradient(180deg, #111, #0a0a0a);
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.searchTrigger:hover {
+  border-color: rgba(199, 162, 75, 0.45);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.16);
+}
+
+.searchTrigger[aria-expanded="true"] {
+  border-color: rgba(199, 162, 75, 0.55);
+  box-shadow: 0 0 0 3px rgba(199, 162, 75, 0.2);
+}
+
+.searchTriggerSvg {
+  display: block;
+  width: 20px;
+  height: 20px;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.searchPopover {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  z-index: 45;
+  width: min(360px, calc(100vw - 28px));
+  padding: 10px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(252, 249, 244, 0.98));
+  border: 1px solid rgba(17, 17, 17, 0.12);
+  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.14), 0 2px 0 rgba(255, 255, 255, 0.9) inset;
+}
+
+.search.search--popover {
+  min-width: 0;
+  width: 100%;
+  margin: 0;
+  border-radius: 16px;
+  border: 0;
+  box-shadow: none;
 }
 
 .iconBtn {
@@ -349,12 +434,15 @@ code {
 
 .burger {
   display: none;
+  appearance: none;
   border: 1px solid var(--border);
   background: var(--surface2);
   border-radius: 10px;
   width: 40px;
   height: 40px;
   position: relative;
+  cursor: pointer;
+  padding: 0;
 }
 
 .burgerBars,
@@ -411,7 +499,7 @@ code {
 
 .pageHeader {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
   padding: 10px 0 16px;
@@ -429,6 +517,8 @@ code {
   display: flex;
   align-items: center;
   gap: 14px;
+  flex: 1;
+  justify-content: flex-end;
 }
 
 .search {
@@ -444,11 +534,6 @@ code {
   box-shadow: 0 18px 45px rgba(0, 0, 0, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.85);
   min-width: 340px;
   transition: border-color 160ms ease, box-shadow 160ms ease, filter 160ms ease;
-}
-
-.pageHeaderMeta {
-  flex: 1;
-  justify-content: flex-end;
 }
 
 .search:focus-within {
@@ -573,13 +658,13 @@ code {
 }
 
 .heroLogo {
-  width: min(380px, 100%);
+  width: min(300px, 88vw);
   height: auto;
-  border-radius: 20px;
-  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.22);
+  border-radius: 18px;
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.28);
   border: 1px solid rgba(199, 162, 75, 0.45);
-  background: rgba(255, 255, 255, 0.2);
-  padding: 8px;
+  background: #0a0a0a;
+  padding: 10px 12px;
 }
 
 .heroTitle {
@@ -656,87 +741,127 @@ code {
 .collections {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
+  gap: clamp(12px, 2.5vw, 18px);
 }
 
 .collectionCard {
   position: relative;
   overflow: hidden;
-  border-radius: 20px;
-  border: 1px solid rgba(17, 17, 17, 0.12);
-  box-shadow: 0 22px 55px rgba(0, 0, 0, 0.1);
+  border-radius: clamp(16px, 2.5vw, 20px);
   text-decoration: none;
-  color: #fff;
-  min-height: 260px;
   display: flex;
-  align-items: flex-end;
+  flex-direction: column;
+  align-items: stretch;
+  min-height: 0;
   isolation: isolate;
-  transition: transform 180ms ease, box-shadow 180ms ease;
-  /* Ista baza ispod obje slike (full-bleed cover), da kartice izgledaju jednako */
-  background: linear-gradient(118deg, #232323 0%, #5c5c5c 34%, #ece9e4 100%);
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
 }
 
-.collectionCard:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.14);
+.collectionCard--mens {
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #0a0a0a;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
+}
+
+.collectionCard--womens {
+  color: #1a1612;
+  border: 1px solid rgba(26, 22, 18, 0.1);
+  background: #faf7f0;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .collectionCard--mens:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 32px 78px rgba(0, 0, 0, 0.4);
+    border-color: rgba(199, 162, 75, 0.35);
+  }
+
+  .collectionCard--womens:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 28px 64px rgba(0, 0, 0, 0.12);
+    border-color: rgba(181, 146, 90, 0.45);
+  }
+
+  .collectionCard:hover .collectionImg {
+    transform: scale(1.03);
+  }
+}
+
+/* Cijela baner grafika vidljiva (contain), rubovi se stapaju s pozadinom kartice */
+.collectionMedia {
+  flex: 0 0 auto;
+  width: 100%;
+  aspect-ratio: 5 / 6;
+  max-height: min(38vw, 400px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(10px, 2.2vw, 22px);
+  box-sizing: border-box;
 }
 
 .collectionImg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center top;
-  transform: scale(1.02);
-  transition: transform 420ms ease;
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  object-position: center;
+  transform: scale(1);
+  transition: transform 380ms ease;
 }
 
-.collectionCard:hover .collectionImg {
-  transform: scale(1.06);
+.collectionFooter {
+  margin-top: auto;
+  flex: 0 0 auto;
+  padding: clamp(14px, 2.8vw, 18px) clamp(16px, 3vw, 22px) clamp(16px, 3vw, 20px);
 }
 
-.collectionCard--mens .collectionImg {
-  object-position: 82% 24%;
+.collectionCard--mens .collectionFooter {
+  background: linear-gradient(180deg, rgba(12, 12, 12, 0.55) 0%, #080808 100%);
+  border-top: 1px solid rgba(199, 162, 75, 0.22);
 }
 
-/* girls.png: isti princip kao „Za njega“ — cover preko cijele kartice (nema sivog okvira) */
-.collectionCard--womens .collectionImg {
-  object-fit: cover;
-  object-position: 56% 36%;
-}
-
-.collectionShade {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  background: linear-gradient(105deg, rgba(0, 0, 0, 0.72) 0%, rgba(0, 0, 0, 0.35) 42%, transparent 72%),
-    linear-gradient(0deg, rgba(0, 0, 0, 0.55) 0%, transparent 55%);
-  pointer-events: none;
-}
-
-.collectionContent {
-  position: relative;
-  z-index: 2;
-  padding: 22px 22px 20px;
-  max-width: 85%;
+.collectionCard--womens .collectionFooter {
+  background: linear-gradient(180deg, rgba(255, 252, 246, 0.65) 0%, #ebe4d8 100%);
+  border-top: 1px solid rgba(181, 146, 90, 0.28);
 }
 
 .collectionTitle {
-  font-size: clamp(22px, 2.2vw, 28px);
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.35);
+  font-size: clamp(20px, 2.4vw, 27px);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+}
+
+.collectionCard--mens .collectionTitle {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.collectionCard--womens .collectionTitle {
+  color: #1a1612;
 }
 
 .collectionHint {
-  margin-top: 8px;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: rgba(255, 255, 255, 0.82);
-  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.35);
+  margin-top: 6px;
+  font-size: clamp(11px, 1.6vw, 12px);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.collectionCard--womens .collectionHint {
+  color: rgba(26, 22, 18, 0.55);
+}
+
+.collectionCard--mens:active,
+.collectionCard--womens:active {
+  transform: scale(0.992);
+  transition-duration: 80ms;
 }
 
 .cardSurface {
@@ -755,17 +880,17 @@ code {
 
 .why {
   display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  gap: 18px;
+  grid-template-columns: 1.08fr 0.92fr;
+  gap: 20px;
   align-items: stretch;
   border-radius: 22px;
-  border: 1px solid rgba(17, 17, 17, 0.12);
-  background: radial-gradient(900px 420px at 0% 0%, rgba(199, 162, 75, 0.16), transparent 60%),
-    radial-gradient(720px 420px at 100% 30%, rgba(0, 0, 0, 0.06), transparent 55%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(250, 248, 245, 0.92));
-  box-shadow: 0 18px 55px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(17, 17, 17, 0.1);
+  background: radial-gradient(900px 420px at 0% 0%, rgba(199, 162, 75, 0.14), transparent 58%),
+    radial-gradient(640px 380px at 100% 25%, rgba(199, 162, 75, 0.08), transparent 52%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(252, 249, 244, 0.96));
+  box-shadow: 0 20px 58px rgba(0, 0, 0, 0.07);
   overflow: hidden;
-  min-height: 420px;
+  min-height: 400px;
 }
 
 .whyBody {
@@ -814,29 +939,35 @@ code {
 
 .whyMedia {
   position: relative;
-  background: radial-gradient(circle at 35% 20%, rgba(199, 162, 75, 0.22), transparent 58%),
-    linear-gradient(180deg, #171311, #0b0908);
-  display: grid;
-  place-items: center;
-  padding: 0;
+  min-height: 0;
+  background: linear-gradient(160deg, #faf5ed 0%, #ebe3d6 42%, #e0d5c8 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(14px, 2.2vw, 22px);
 }
 
 .whyMedia::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(900px 320px at 50% 0%, rgba(255, 255, 255, 0.12), transparent 60%);
+  background: radial-gradient(90% 70% at 50% 35%, transparent 40%, rgba(26, 22, 18, 0.06) 100%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, transparent 28%);
   pointer-events: none;
 }
 
 .whyImg {
+  position: relative;
+  z-index: 1;
+  display: block;
   width: 100%;
-  height: 100%;
-  max-height: none;
-  object-fit: cover;
-  object-position: 50% 30%;
-  border-radius: 0;
-  filter: saturate(1.05) contrast(1.02) drop-shadow(0 18px 38px rgba(0, 0, 0, 0.25));
+  height: auto;
+  max-height: min(68vh, 520px);
+  object-fit: contain;
+  object-position: center;
+  border-radius: 14px;
+  box-shadow: 0 18px 46px rgba(26, 22, 18, 0.14), 0 2px 0 rgba(255, 255, 255, 0.5) inset;
+  filter: saturate(1.04) contrast(1.03);
 }
 
 .grid {
@@ -3699,11 +3830,12 @@ textarea:disabled {
     width: 100%;
   }
 
-  /* Header polish */
+  /* Header: meni lijevo, logo + naziv centar, korpa desno */
   .headerInner {
     padding: 10px 12px;
-    gap: 10px;
-    justify-content: space-between;
+    column-gap: 8px;
+    row-gap: 0;
+    grid-template-rows: auto;
   }
 
   .header {
@@ -3713,24 +3845,46 @@ textarea:disabled {
   }
 
   .brand {
-    gap: 10px;
-    min-width: 0;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 2px;
+    max-width: 56vw;
   }
 
   .brandLogo {
-    height: 60px;
+    height: 52px;
+    width: auto;
   }
 
   .brandText {
-    margin-left: 8px;
-    font-size: 11px;
-    letter-spacing: 0.12em;
-    color: rgba(17, 17, 17, 0.86);
-    display: none;
+    display: block;
+    margin-left: 0;
+    font-size: 8px;
+    letter-spacing: 0.14em;
+    color: rgba(17, 17, 17, 0.88);
+    line-height: 1.2;
   }
 
   .headerActions {
     gap: 8px;
+  }
+
+  .searchTrigger {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+  }
+
+  .searchTrigger[aria-expanded="true"] {
+    border-color: rgba(199, 162, 75, 0.45);
+    box-shadow: 0 0 0 3px rgba(199, 162, 75, 0.14), 0 12px 26px rgba(0, 0, 0, 0.12);
+  }
+
+  .searchPopover {
+    width: min(340px, calc(100vw - 20px));
+    right: -6px;
+    padding: 8px;
   }
 
   .cartBtn {
@@ -3839,6 +3993,17 @@ textarea:disabled {
 
   .collections {
     grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .collectionMedia {
+    aspect-ratio: 4 / 5;
+    max-height: min(50vh, 360px);
+    padding: 12px 14px 10px;
+  }
+
+  .collectionFooter {
+    padding: 14px 16px 16px;
   }
 
   .why {
@@ -3848,12 +4013,13 @@ textarea:disabled {
 
   .whyMedia {
     order: -1;
-    padding: 14px;
+    padding: 12px 14px 10px;
   }
 
   .whyImg {
-    max-height: 320px;
-    border-radius: 18px;
+    max-height: min(52vw, 380px);
+    border-radius: 16px;
+    box-shadow: 0 14px 36px rgba(26, 22, 18, 0.12), 0 1px 0 rgba(255, 255, 255, 0.45) inset;
   }
 
   .grid {

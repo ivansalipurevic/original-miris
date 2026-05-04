@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useLocation, useSearchParams } from "react-router-dom";
 import { FiltersPanel, FiltersState } from "../components/FiltersPanel";
 import { Pagination } from "../components/Pagination";
 import { ProductGrid } from "../components/ProductGrid";
@@ -29,8 +29,10 @@ export function ProductsPage({ mode }: { mode: ProductsMode }) {
     [maxKnownPrice],
   );
   const [filters, setFilters] = useState<FiltersState>(defaultFilters);
-  const [q, setQ] = useState("");
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  const q = searchParams.get("q") ?? "";
+  const prevCatalogPath = useRef<string | null>(null);
 
   function setPage(nextPage: number) {
     const safe = Math.max(1, Math.min(totalPages, nextPage));
@@ -69,14 +71,19 @@ export function ProductsPage({ mode }: { mode: ProductsMode }) {
   const page = Math.min(pageFromUrl, totalPages);
 
   useEffect(() => {
-    // when switching between All/Women/Men, jump back to page 1
-    const next = new URLSearchParams(searchParams);
-    next.set("page", "1");
-    setSearchParams(next);
-    setQ("");
-    setFilters(defaultFilters);
+    const p = location.pathname;
+    if (prevCatalogPath.current !== null && prevCatalogPath.current !== p) {
+      setSearchParams((sp) => {
+        const next = new URLSearchParams(sp);
+        next.set("page", "1");
+        next.delete("q");
+        return next;
+      });
+      setFilters({ minPrice: 0, maxPrice: defaultFilters.maxPrice });
+    }
+    prevCatalogPath.current = p;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode]);
+  }, [location.pathname, defaultFilters.maxPrice]);
 
   useEffect(() => {
     // keep slider bounds in sync when dataset changes
@@ -98,34 +105,6 @@ export function ProductsPage({ mode }: { mode: ProductsMode }) {
     <div className="page">
       <div className="pageHeader">
         <h1>{title}</h1>
-        <div className="pageHeaderMeta">
-          <label className="search">
-            <span className="srOnly">Pretraga</span>
-            <span className="searchIcon" aria-hidden="true" />
-            <input
-              className="searchInput"
-              value={q}
-              onChange={(e) => {
-                setQ(e.target.value);
-                setPage(1);
-              }}
-              placeholder="Pretraži parfeme…"
-            />
-            {q.trim() ? (
-              <button
-                type="button"
-                className="searchClear"
-                onClick={() => {
-                  setQ("");
-                  setPage(1);
-                }}
-                aria-label="Očisti pretragu"
-              >
-                ×
-              </button>
-            ) : null}
-          </label>
-        </div>
       </div>
 
       <div className="catalog">

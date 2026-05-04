@@ -23,7 +23,7 @@ export function HomePage() {
           </div>
 
           <div className="heroMedia">
-            <img className="heroLogo" src="/logoparfem.png" alt="Original Miris" />
+            <img className="heroLogo" src="/novilogo.png" alt="Original Parfem" />
           </div>
         </div>
       </section>
@@ -34,17 +34,19 @@ export function HomePage() {
         </div>
         <div className="collections">
           <Link className="collectionCard collectionCard--mens" to="/collections/za-njega" aria-label="Za njega, muška kolekcija">
-            <img className="collectionImg" src="/mens.png" alt="" aria-hidden />
-            <div className="collectionShade" aria-hidden />
-            <div className="collectionContent">
+            <div className="collectionMedia">
+              <img className="collectionImg" src="/muskarci.png" alt="" aria-hidden />
+            </div>
+            <div className="collectionFooter">
               <div className="collectionTitle">Za njega</div>
               <div className="collectionHint">Muška kolekcija</div>
             </div>
           </Link>
           <Link className="collectionCard collectionCard--womens" to="/collections/za-nju" aria-label="Za nju, ženska kolekcija">
-            <img className="collectionImg" src="/girls.png" alt="" aria-hidden />
-            <div className="collectionShade" aria-hidden />
-            <div className="collectionContent">
+            <div className="collectionMedia">
+              <img className="collectionImg" src="/zene.png" alt="" aria-hidden />
+            </div>
+            <div className="collectionFooter">
               <div className="collectionTitle">Za nju</div>
               <div className="collectionHint">Ženska kolekcija</div>
             </div>
@@ -83,7 +85,7 @@ export function HomePage() {
           </div>
 
           <div className="whyMedia" aria-hidden="true">
-            <img className="whyImg" src="/originalmiris.png" alt="" />
+            <img className="whyImg" src="/parfemi.png" alt="" />
           </div>
         </div>
       </section>

@@ -1,5 +1,5 @@
-import { PropsWithChildren, useEffect, useMemo, useState } from "react";
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { PropsWithChildren, useEffect, useMemo, useRef, useState } from "react";
+import { Link, NavLink, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { allProducts } from "../mock/products";
 import { useCart } from "../cart/CartContext";
 
@@ -17,6 +17,10 @@ const navItems: NavItem[] = [
 
 export function AppShell({ children }: PropsWithChildren) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchDraft, setSearchDraft] = useState("");
+  const headerSearchRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [checkoutDoneId, setCheckoutDoneId] = useState<string | null>(null);
@@ -31,7 +35,16 @@ export function AppShell({ children }: PropsWithChildren) {
   });
   const [checkoutErrors, setCheckoutErrors] = useState<Record<string, string>>({});
   const location = useLocation();
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const cart = useCart();
+
+  const isCatalog = useMemo(
+    () => location.pathname === "/products" || location.pathname.startsWith("/collections/"),
+    [location.pathname],
+  );
+  const urlQ = searchParams.get("q") ?? "";
+  const searchInputValue = isCatalog ? urlQ : searchDraft;
   const cartProducts = useMemo(() => new Map(allProducts.map((p) => [p.id, p])), []);
 
   const newestCartProductId = useMemo(() => {
@@ -43,10 +56,49 @@ export function AppShell({ children }: PropsWithChildren) {
   useEffect(() => {
     setIsMenuOpen(false);
     setIsCartOpen(false);
+    setIsSearchOpen(false);
     setIsCheckoutOpen(false);
     setCheckoutDoneId(null);
     window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (isSearchOpen && !isCatalog) {
+      setSearchDraft("");
+    }
+  }, [isSearchOpen, isCatalog]);
+
+  useEffect(() => {
+    if (!isSearchOpen) return;
+    searchInputRef.current?.focus();
+  }, [isSearchOpen]);
+
+  useEffect(() => {
+    if (!isSearchOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setIsSearchOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isSearchOpen]);
+
+  useEffect(() => {
+    if (!isSearchOpen) return;
+    const onDown = (e: MouseEvent) => {
+      if (headerSearchRef.current?.contains(e.target as Node)) return;
+      setIsSearchOpen(false);
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [isSearchOpen]);
+
+  function submitSearchFromDraft() {
+    const trimmed = searchDraft.trim();
+    const next = new URLSearchParams();
+    if (trimmed) next.set("q", trimmed);
+    navigate({ pathname: "/products", search: next.toString() });
+    setIsSearchOpen(false);
+  }
 
   const year = useMemo(() => new Date().getFullYear(), []);
 
@@ -94,12 +146,98 @@ export function AppShell({ children }: PropsWithChildren) {
 
       <header className="header">
         <div className="headerInner">
+          <div className="headerStart">
+            <button className="burger" type="button" onClick={() => setIsMenuOpen((v) => !v)} aria-expanded={isMenuOpen}>
+              <span className="burgerBars" aria-hidden="true" />
+              <span className="srOnly">Meni</span>
+            </button>
+          </div>
+
           <Link className="brand" to="/">
-            <img className="brandLogo" src="/logoparfem.png" alt="Original Miris" />
-            <span className="brandText">ORIGINAL MIRIS</span>
+            <img className="brandLogo" src="/novilogo.png" alt="Original Parfem" />
+            <span className="brandText">ORIGINAL PARFEM</span>
           </Link>
 
-          <nav className="nav">
+          <div className="headerActions">
+            <div className="headerSearchWrap" ref={headerSearchRef}>
+              <button
+                type="button"
+                className="searchTrigger"
+                aria-expanded={isSearchOpen}
+                aria-controls="header-search-popover"
+                id="header-search-open"
+                onClick={() => setIsSearchOpen((v) => !v)}
+              >
+                <span className="srOnly">Pretraga</span>
+                <svg className="searchTriggerSvg" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+                  <circle cx="10.5" cy="10.5" r="6.25" fill="none" stroke="currentColor" strokeWidth="2" />
+                  <path d="M15.4 15.4 21 21" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+              </button>
+              {isSearchOpen ? (
+                <div className="searchPopover" id="header-search-popover" role="search">
+                  <label className="search search--popover">
+                    <span className="srOnly">Pretraga parfema</span>
+                    <span className="searchIcon" aria-hidden="true" />
+                    <input
+                      ref={searchInputRef}
+                      className="searchInput"
+                      value={searchInputValue}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        if (isCatalog) {
+                          setSearchParams((prev) => {
+                            const next = new URLSearchParams(prev);
+                            if (v.trim()) next.set("q", v);
+                            else next.delete("q");
+                            next.set("page", "1");
+                            return next;
+                          });
+                        } else {
+                          setSearchDraft(v);
+                        }
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key !== "Enter") return;
+                        e.preventDefault();
+                        if (isCatalog) setIsSearchOpen(false);
+                        else submitSearchFromDraft();
+                      }}
+                      placeholder="Pretraži parfeme…"
+                      autoComplete="off"
+                    />
+                    {searchInputValue.trim() ? (
+                      <button
+                        type="button"
+                        className="searchClear"
+                        onClick={() => {
+                          if (isCatalog) {
+                            setSearchParams((prev) => {
+                              const next = new URLSearchParams(prev);
+                              next.delete("q");
+                              next.set("page", "1");
+                              return next;
+                            });
+                          } else {
+                            setSearchDraft("");
+                          }
+                        }}
+                        aria-label="Očisti pretragu"
+                      >
+                        ×
+                      </button>
+                    ) : null}
+                  </label>
+                </div>
+              ) : null}
+            </div>
+            <button className="cartBtn" type="button" onClick={() => setIsCartOpen(true)}>
+              <span className="cartIcon" aria-hidden="true" />
+              <span className="cartLabel">Korpa</span> <span className="pill">{cart.totals.itemsCount}</span>
+            </button>
+          </div>
+
+          <nav className="nav" aria-label="Glavna navigacija">
             {navItems.map((item) => (
               <NavLink
                 key={item.to}
@@ -110,17 +248,6 @@ export function AppShell({ children }: PropsWithChildren) {
               </NavLink>
             ))}
           </nav>
-
-          <div className="headerActions">
-            <button className="cartBtn" type="button" onClick={() => setIsCartOpen(true)}>
-              <span className="cartIcon" aria-hidden="true" />
-              <span className="cartLabel">Korpa</span> <span className="pill">{cart.totals.itemsCount}</span>
-            </button>
-            <button className="burger" type="button" onClick={() => setIsMenuOpen((v) => !v)}>
-              <span className="burgerBars" aria-hidden="true" />
-              <span className="srOnly">Meni</span>
-            </button>
-          </div>
         </div>
 
         {isMenuOpen ? (
