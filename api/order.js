@@ -154,10 +154,15 @@ module.exports = async (req, res) => {
     if (!parsed.ok) return json(res, 400, { ok: false, error: parsed.error });
     const order = parsed.value;
 
-    const host = process.env.MAILTRAP_HOST;
-    const port = Number(process.env.MAILTRAP_PORT || 587);
-    const user = process.env.MAILTRAP_USER;
-    const pass = process.env.MAILTRAP_PASS;
+    // SMTP settings
+    // - Preferred: SMTP_HOST/SMTP_PORT/SMTP_USER/SMTP_PASS (+ SMTP_SECURE=true for 465)
+    // - Backwards compat: MAILTRAP_* (dev inbox)
+    const host = process.env.SMTP_HOST || process.env.MAILTRAP_HOST;
+    const port = Number(process.env.SMTP_PORT || process.env.MAILTRAP_PORT || 587);
+    const secure =
+      String(process.env.SMTP_SECURE || "").toLowerCase() === "true" ? true : port === 465;
+    const user = process.env.SMTP_USER || process.env.MAILTRAP_USER;
+    const pass = process.env.SMTP_PASS || process.env.MAILTRAP_PASS;
     const from = process.env.MAIL_FROM;
     const adminTo = process.env.ADMIN_EMAIL_TO;
 
@@ -166,9 +171,9 @@ module.exports = async (req, res) => {
         ok: false,
         error: "Missing email env vars",
         missing: {
-          MAILTRAP_HOST: !host,
-          MAILTRAP_USER: !user,
-          MAILTRAP_PASS: !pass,
+          SMTP_HOST: !host,
+          SMTP_USER: !user,
+          SMTP_PASS: !pass,
           MAIL_FROM: !from,
           ADMIN_EMAIL_TO: !adminTo,
         },
@@ -178,6 +183,7 @@ module.exports = async (req, res) => {
     const transporter = nodemailer.createTransport({
       host,
       port,
+      secure,
       auth: { user, pass },
     });
 

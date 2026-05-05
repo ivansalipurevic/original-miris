@@ -2,6 +2,8 @@ import { PropsWithChildren, useEffect, useMemo, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { allProducts } from "../mock/products";
 import { useCart } from "../cart/CartContext";
+import { orderPayloadFromCart } from "../api/orderPayloadFromCart";
+import { placeOrder } from "../api/placeOrder";
 
 import "../style.css";
 
@@ -24,6 +26,8 @@ export function AppShell({ children }: PropsWithChildren) {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [checkoutDoneId, setCheckoutDoneId] = useState<string | null>(null);
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const [placeOrderError, setPlaceOrderError] = useState<string | null>(null);
   const [checkout, setCheckout] = useState({
     fullName: "",
     phone: "",
@@ -106,9 +110,8 @@ export function AppShell({ children }: PropsWithChildren) {
     const errors: Record<string, string> = {};
     if (!checkout.fullName.trim()) errors.fullName = "Unesi ime i prezime.";
     if (!checkout.phone.trim()) errors.phone = "Unesi broj telefona.";
-    if (checkout.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(checkout.email.trim())) {
-      errors.email = "Unesi ispravan email.";
-    }
+    if (!checkout.email.trim()) errors.email = "Unesi email.";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(checkout.email.trim())) errors.email = "Unesi ispravan email.";
     if (!checkout.city.trim()) errors.city = "Unesi grad.";
     if (!checkout.address.trim()) errors.address = "Unesi adresu.";
     setCheckoutErrors(errors);
@@ -471,10 +474,34 @@ export function AppShell({ children }: PropsWithChildren) {
                 className="checkoutForm"
                 onSubmit={(e) => {
                   e.preventDefault();
+                  if (isPlacingOrder) return;
+                  setPlaceOrderError(null);
                   if (!validateCheckout()) return;
+
                   const id = `OM-${Math.random().toString(16).slice(2, 8).toUpperCase()}`;
-                  setCheckoutDoneId(id);
-                  cart.clear();
+                  const payload = orderPayloadFromCart({
+                    cart: cart.state,
+                    totals: cart.totals,
+                    customer: {
+                      email: checkout.email.trim(),
+                      fullName: checkout.fullName.trim(),
+                      phone: checkout.phone.trim(),
+                      address: checkout.address.trim(),
+                      city: checkout.city.trim(),
+                      note: checkout.note.trim(),
+                    },
+                  });
+
+                  setIsPlacingOrder(true);
+                  placeOrder(payload)
+                    .then(() => {
+                      setCheckoutDoneId(id);
+                      cart.clear();
+                    })
+                    .catch((err) => {
+                      setPlaceOrderError(err instanceof Error ? err.message : "Slanje narudžbe nije uspjelo.");
+                    })
+                    .finally(() => setIsPlacingOrder(false));
                 }}
               >
                 <div className="checkoutGrid">
@@ -501,12 +528,12 @@ export function AppShell({ children }: PropsWithChildren) {
                   </label>
 
                   <label className="field">
-                    <span className="fieldLabel">Email</span>
+                    <span className="fieldLabel">Email *</span>
                     <input
                       className={checkoutErrors.email ? "fieldInput fieldInput--err" : "fieldInput"}
                       value={checkout.email}
                       onChange={(e) => setCheckout((s) => ({ ...s, email: e.target.value }))}
-                      placeholder="Unesi email (opcionalno)"
+                      placeholder="Unesi email"
                       inputMode="email"
                     />
                     {checkoutErrors.email ? <span className="fieldErr">{checkoutErrors.email}</span> : null}
@@ -569,8 +596,13 @@ export function AppShell({ children }: PropsWithChildren) {
                 </div>
 
                 <div className="checkoutActions">
-                  <button className="drawerCta" type="submit">
-                    Naruči
+                  {placeOrderError ? (
+                    <div className="fieldErr" role="alert" style={{ marginBottom: 10 }}>
+                      {placeOrderError}
+                    </div>
+                  ) : null}
+                  <button className="drawerCta" type="submit" disabled={isPlacingOrder}>
+                    {isPlacingOrder ? "Slanje..." : "Naruči"}
                   </button>
                 </div>
               </form>
