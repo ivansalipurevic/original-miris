@@ -16,7 +16,9 @@ export type Product = {
   imageUrl?: string;
 };
 
-export const allProducts: Product[] = [
+const PRICE_BUMP_KM = 15;
+
+const RAW_PRODUCTS: Product[] = [
   { id: "kilian-angels-share", name: "KILIAN Angels`Share EDP", description: "", priceKM: 161, compareAtPriceKM: 328, sizeML: 50, available: true, collection: "za_njega", imageUrl: "https://cdn.shopify.com/s/files/1/0746/8672/6316/files/IMG-8335.png?v=1774120251" },
   { id: "xerjoff-torino21-edp", name: "XERJOFF Torino21 EDP", description: "GORNJE NOTE\nBosiljak, Limun, Nana, Majčina dušica\nSREDNJE NOTE\nCrna ribizla, Jasmin drvo, Lavanda, Ruzmarin\nBAZNE NOTE\nMošus, Verbena", priceKM: 185, compareAtPriceKM: 385, sizeML: 100, available: true, collection: "za_njega", imageUrl: "https://cdn.shopify.com/s/files/1/0746/8672/6316/files/IMG-8271.png?v=1774120250" },
   { id: "dolce-gabbana-the-only-one-2-edp", name: "DOLCE&GABBANA The Only One 2 EDP", description: "", priceKM: 120, compareAtPriceKM: 163, sizeML: 100, available: true, collection: "za_nju", imageUrl: "https://cdn.shopify.com/s/files/1/0746/8672/6316/files/IMG-7796.png?v=1774120249" },
@@ -226,6 +228,12 @@ export const allProducts: Product[] = [
   { id: "matiere-premiere-vanilla-powder-edp", name: "MATIERE PREMIERE Vanilla Powder EDP", description: "Kontrast između tamne vanile i belog drveta inicijalna je ideja kreacije.\nApsolut vanile sa Madagaskara je u okosnici parfema.\nPalo Santo iz Ekvadora provlači se vertikalno kroz strukturu parfema.\nKokosov puder pojačava neodoljivu privlačnost vanile.\nBeli mošus dodaje puderasti ton u ovoj blistavoj, modernoj interpretaciji vanile.", brand: "Doris", priceKM: 148, compareAtPriceKM: 338, sizeML: 100, available: true, collection: "za_njega", imageUrl: "https://cdn.shopify.com/s/files/1/0746/8672/6316/files/IMG-2569.jpg?v=1774120028" },
   { id: "essential-parfums-bois-imperial", name: "ESSENTIAL PARFUMS Bois Imperial EDP", description: "Svježe izmrvljeni listovi bosiljka sa Tajlanda spojiće se sa nepalskim biberom u brilijantan začinski kompleks, postavljen kao antiteža snažnom drvenastom karakteru parfema. Haićanski vetiver, zelen, raskošan i pun zemljastih tonova, udružen je sa ekskluzivnim, drvenastim mirisnim molekulom “Georgywood” sa jakim notama kedra. Ova igra više drvenastih nota je ukras parfema koji istinski počiva na ekskluzivnom prirodnom sastojku akigalawood dobijenog biotehnologijom apcikliranjem iz pačulija. Bogat drvenasto-začinski karakter parfema pojačan je indonežanskim pačulijem i amborfiksom. Sastojci su iz održive proizvodnje ili apcikliranja, čime se podržavaju bolje poljoprivredne i destilacione pakse i smanjuje uticaj na okolinu.", brand: "Doris", priceKM: 123, compareAtPriceKM: 218, sizeML: 100, available: true, collection: "za_njega", imageUrl: "https://cdn.shopify.com/s/files/1/0746/8672/6316/files/23446_1_6735bc1387a8a_980x980r_715e0c30-e9b6-4090-a0b8-812acb6df6b3.jpg?v=1774120026" },
 ];
+
+export const allProducts: Product[] = RAW_PRODUCTS.map((p) => ({
+  ...p,
+  priceKM: p.priceKM + PRICE_BUMP_KM,
+  ...(typeof p.compareAtPriceKM === "number" ? { compareAtPriceKM: p.compareAtPriceKM + PRICE_BUMP_KM } : {}),
+}));
 
 export const womensProducts = allProducts.filter((x) => x.collection === "za_nju");
 export const mensProducts = allProducts.filter((x) => x.collection === "za_njega");

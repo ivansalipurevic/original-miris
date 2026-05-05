@@ -4,10 +4,10 @@ import type { Product } from "./products.generated";
 
 /** Četiri parfema za blok „Naša preporuka“ na početnoj (id moraju postojati u allProducts). */
 const STAFF_PICK_IDS = [
-  "maison-francis-kurkdjian-baccarat-rouge-540-edp",
+  "mancera-red-tobacco",
   "creed-aventus",
   "tom-ford-tobacco-vanille",
-  "miss-dior-cherie-eau-de-parfum",
+  "essential-parfums-bois-imperial",
 ] as const;
 
 export const staffPickProducts: Product[] = STAFF_PICK_IDS.map((id) => allProducts.find((p) => p.id === id)).filter(
