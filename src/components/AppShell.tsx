@@ -28,6 +28,10 @@ export function AppShell({ children }: PropsWithChildren) {
   const [checkoutDoneId, setCheckoutDoneId] = useState<string | null>(null);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [placeOrderError, setPlaceOrderError] = useState<string | null>(null);
+  const [placedOrderSummary, setPlacedOrderSummary] = useState<{
+    items: { name: string; qty: number; priceKM?: number | null }[];
+    totals: { itemsCount: number; subtotalKM: number; discountKM: number; totalKM: number };
+  } | null>(null);
   const [checkout, setCheckout] = useState({
     fullName: "",
     phone: "",
@@ -43,6 +47,7 @@ export function AppShell({ children }: PropsWithChildren) {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const cart = useCart();
+  const headerTotals = placedOrderSummary?.totals ?? cart.totals;
 
   const isCatalog = useMemo(
     () => location.pathname === "/products" || location.pathname.startsWith("/collections/"),
@@ -117,7 +122,6 @@ export function AppShell({ children }: PropsWithChildren) {
     if (!checkout.city.trim()) errors.city = "Unesi grad.";
     if (!checkout.address.trim()) errors.address = "Unesi adresu i broj.";
     else if (!/\d/.test(checkout.address.trim())) errors.address = "Adresa mora sadržati broj (npr. Kralja Petra 12).";
-    if (!checkout.note.trim()) errors.note = "Unesi napomenu.";
     setCheckoutErrors(errors);
     return Object.keys(errors).length === 0;
   }
@@ -447,7 +451,7 @@ export function AppShell({ children }: PropsWithChildren) {
                   Podaci za dostavu
                 </h2>
                 <p className="checkoutSub muted">
-                  Ukupno: <strong>{cart.totals.totalKM.toFixed(2).replace(".", ",")} KM</strong> ({cart.totals.itemsCount} artikala)
+                  Ukupno: <strong>{headerTotals.totalKM.toFixed(2).replace(".", ",")} KM</strong> ({headerTotals.itemsCount} artikala)
                 </p>
               </div>
               <button className="checkoutClose" type="button" onClick={() => setIsCheckoutOpen(false)}>
@@ -462,12 +466,56 @@ export function AppShell({ children }: PropsWithChildren) {
                 <p className="doneDesc muted">
                   Broj narudžbe: <strong>{checkoutDoneId}</strong>. Kontaktiraćemo te uskoro radi potvrde.
                 </p>
+                {placedOrderSummary ? (
+                  <div className="cartSummary" style={{ marginTop: 14 }}>
+                    <div className="cartSummaryRow">
+                      <span className="muted">Stavke</span>
+                      <span className="cartSummaryValue">{placedOrderSummary.totals.itemsCount}</span>
+                    </div>
+                    <div style={{ marginTop: 10 }}>
+                      {placedOrderSummary.items.map((it, idx) => (
+                        <div key={`${it.name}-${idx}`} className="cartSummaryRow">
+                          <span className="muted">
+                            {it.name} × {it.qty}
+                          </span>
+                          <span className="cartSummaryValue">
+                            {typeof it.priceKM === "number"
+                              ? `${(it.priceKM * it.qty).toFixed(2).replace(".", ",")} KM`
+                              : ""}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="cartSummaryRow" style={{ marginTop: 12 }}>
+                      <span className="muted">Subtotal</span>
+                      <span className="cartSummaryValue">
+                        {placedOrderSummary.totals.subtotalKM.toFixed(2).replace(".", ",")} KM
+                      </span>
+                    </div>
+                    {placedOrderSummary.totals.discountKM > 0 ? (
+                      <div className="cartSummaryRow">
+                        <span className="muted">Popust</span>
+                        <span className="cartSummaryValue">
+                          -{placedOrderSummary.totals.discountKM.toFixed(2).replace(".", ",")} KM
+                        </span>
+                      </div>
+                    ) : null}
+                    <div className="cartSummaryRow">
+                      <span className="muted">Ukupno</span>
+                      <span className="cartSummaryValue">
+                        {placedOrderSummary.totals.totalKM.toFixed(2).replace(".", ",")} KM
+                      </span>
+                    </div>
+                  </div>
+                ) : null}
                 <button
                   className="drawerCta"
                   type="button"
                   onClick={() => {
                     setIsCheckoutOpen(false);
                     setIsCartOpen(false);
+                    setCheckoutDoneId(null);
+                    setPlacedOrderSummary(null);
                   }}
                 >
                   Zatvori
@@ -493,7 +541,7 @@ export function AppShell({ children }: PropsWithChildren) {
                       postalCode: checkout.postalCode.trim(),
                       address: checkout.address.trim(),
                       city: checkout.city.trim(),
-                      note: checkout.note.trim(),
+                      ...(checkout.note.trim() ? { note: checkout.note.trim() } : null),
                     },
                   });
 
@@ -501,6 +549,15 @@ export function AppShell({ children }: PropsWithChildren) {
                   placeOrder(payload)
                     .then(() => {
                       setCheckoutDoneId(id);
+                      setPlacedOrderSummary({
+                        items: payload.items,
+                        totals: {
+                          itemsCount: payload.items.reduce((acc, it) => acc + it.qty, 0),
+                          subtotalKM: payload.totals?.subtotalKM ?? cart.totals.subtotalKM,
+                          discountKM: payload.totals?.discountKM ?? cart.totals.discountKM,
+                          totalKM: payload.totals?.totalKM ?? cart.totals.totalKM,
+                        },
+                      });
                       cart.clear();
                     })
                     .catch((err) => {
@@ -579,15 +636,14 @@ export function AppShell({ children }: PropsWithChildren) {
                   </label>
 
                   <label className="field field--full">
-                    <span className="fieldLabel">Napomena *</span>
+                    <span className="fieldLabel">Napomena</span>
                     <textarea
-                      className={checkoutErrors.note ? "fieldInput fieldTextarea fieldInput--err" : "fieldInput fieldTextarea"}
+                      className="fieldInput fieldTextarea"
                       value={checkout.note}
                       onChange={(e) => setCheckout((s) => ({ ...s, note: e.target.value }))}
                       placeholder="Unesi napomenu"
                       rows={3}
                     />
-                    {checkoutErrors.note ? <span className="fieldErr">{checkoutErrors.note}</span> : null}
                   </label>
                 </div>
 

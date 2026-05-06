@@ -12,7 +12,7 @@ export function orderPayloadFromCart(input: {
     .map((line) => {
       const p = map.get(line.productId);
       if (!p) return null;
-      return { name: p.name, qty: line.qty, priceKM: p.priceKM };
+      return { name: p.name, qty: line.qty, priceKM: p.priceKM, imageUrl: p.imageUrl ?? null };
     })
     .filter(Boolean);
 

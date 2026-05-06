@@ -2,6 +2,7 @@ export type OrderItem = {
   name: string;
   qty: number;
   priceKM?: number | null;
+  imageUrl?: string | null;
 };
 
 export type OrderPayload = {
@@ -12,7 +13,7 @@ export type OrderPayload = {
     postalCode: string;
     address: string;
     city: string;
-    note: string;
+    note?: string;
   };
   items: OrderItem[];
   totals?: {

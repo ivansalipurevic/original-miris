@@ -65,7 +65,6 @@ function validateOrderPayload(body) {
   if (!city) return { ok: false, error: "Missing customer.city" };
   if (!address) return { ok: false, error: "Missing customer.address" };
   if (!/\d/.test(address)) return { ok: false, error: "customer.address must include house number" };
-  if (!note) return { ok: false, error: "Missing customer.note" };
 
   const items = Array.isArray(body.items) ? body.items : [];
   if (items.length < 1) return { ok: false, error: "Order must have at least 1 item" };
@@ -77,7 +76,13 @@ function validateOrderPayload(body) {
     const qty = Number(it.qty);
     const priceKM = Number(it.priceKM);
     if (!name || !Number.isFinite(qty) || qty <= 0) continue;
-    cleanItems.push({ name, qty: Math.floor(qty), priceKM: Number.isFinite(priceKM) ? priceKM : null });
+    const imageUrl = typeof it.imageUrl === "string" && it.imageUrl.trim() ? it.imageUrl.trim() : null;
+    cleanItems.push({
+      name,
+      qty: Math.floor(qty),
+      priceKM: Number.isFinite(priceKM) ? priceKM : null,
+      imageUrl,
+    });
   }
   if (cleanItems.length < 1) return { ok: false, error: "Order items invalid" };
 
@@ -108,11 +113,12 @@ function renderAdminText(order) {
   lines.push(`Email: ${order.customer.email}`);
   lines.push(`Telefon: ${order.customer.phone}`);
   lines.push(`Adresa: ${order.customer.address}, ${order.customer.postalCode} ${order.customer.city}`.trim());
-  lines.push(`Napomena: ${order.customer.note}`);
+  if (order.customer.note) lines.push(`Napomena: ${order.customer.note}`);
   lines.push("");
   lines.push("Stavke:");
   for (const it of order.items) {
     lines.push(`- ${it.name} x${it.qty}${it.priceKM == null ? "" : ` (${formatKM(it.priceKM)})`}`);
+    if (it.imageUrl) lines.push(`  Slika: ${it.imageUrl}`);
   }
   if (order.totals.totalKM != null) {
     lines.push("");
@@ -128,7 +134,18 @@ function renderCustomerHtml(order) {
   const itemsHtml = order.items
     .map((it) => {
       const price = it.priceKM == null ? "" : ` <span style="color:#666">(${escapeHtml(formatKM(it.priceKM))})</span>`;
-      return `<li>${escapeHtml(it.name)} <strong>x${escapeHtml(it.qty)}</strong>${price}</li>`;
+      const img = it.imageUrl
+        ? `<img src="${escapeHtml(it.imageUrl)}" alt="" width="56" height="56" style="display:block;border-radius:10px;object-fit:cover;background:#f4f4f4" />`
+        : `<div style="width:56px;height:56px;border-radius:10px;background:#f4f4f4"></div>`;
+      return `<li style="list-style:none;margin:0;padding:10px 0;border-bottom:1px solid #eee">
+        <div style="display:flex;gap:12px;align-items:center">
+          ${img}
+          <div>
+            <div style="font-weight:600">${escapeHtml(it.name)}</div>
+            <div style="color:#444;font-size:13px">Količina: <strong>${escapeHtml(it.qty)}</strong>${price}</div>
+          </div>
+        </div>
+      </li>`;
     })
     .join("");
 
@@ -149,7 +166,7 @@ function renderCustomerHtml(order) {
         Hvala! Ovo su stavke koje si naručio/la (${escapeHtml(itemsCount)} kom).
       </p>
       <h3 style="margin:16px 0 8px 0">Stavke</h3>
-      <ul style="margin:0; padding-left:18px">${itemsHtml || "<li>(Stavke nisu učitane)</li>"}</ul>
+      <ul style="margin:0; padding:0">${itemsHtml || "<li>(Stavke nisu učitane)</li>"}</ul>
       ${totalsHtml}
       <hr style="margin:20px 0; border:none; border-top:1px solid #eee" />
       <p style="margin:0; color:#666; font-size:12px">Ako imaš pitanje, odgovori na ovaj email.</p>
