@@ -7,11 +7,12 @@ export type OrderItem = {
 export type OrderPayload = {
   customer: {
     email: string;
-    fullName?: string;
-    phone?: string;
-    address?: string;
-    city?: string;
-    note?: string;
+    fullName: string;
+    phone: string;
+    postalCode: string;
+    address: string;
+    city: string;
+    note: string;
   };
   items: OrderItem[];
   totals?: {

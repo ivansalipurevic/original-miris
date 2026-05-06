@@ -54,9 +54,18 @@ function validateOrderPayload(body) {
 
   const fullName = typeof customer.fullName === "string" ? customer.fullName.trim() : "";
   const phone = typeof customer.phone === "string" ? customer.phone.trim() : "";
+  const postalCode = typeof customer.postalCode === "string" ? customer.postalCode.trim() : "";
   const address = typeof customer.address === "string" ? customer.address.trim() : "";
   const city = typeof customer.city === "string" ? customer.city.trim() : "";
   const note = typeof customer.note === "string" ? customer.note.trim() : "";
+
+  if (!fullName) return { ok: false, error: "Missing customer.fullName" };
+  if (!phone) return { ok: false, error: "Missing customer.phone" };
+  if (!postalCode) return { ok: false, error: "Missing customer.postalCode" };
+  if (!city) return { ok: false, error: "Missing customer.city" };
+  if (!address) return { ok: false, error: "Missing customer.address" };
+  if (!/\d/.test(address)) return { ok: false, error: "customer.address must include house number" };
+  if (!note) return { ok: false, error: "Missing customer.note" };
 
   const items = Array.isArray(body.items) ? body.items : [];
   if (items.length < 1) return { ok: false, error: "Order must have at least 1 item" };
@@ -80,7 +89,7 @@ function validateOrderPayload(body) {
   return {
     ok: true,
     value: {
-      customer: { email, fullName, phone, address, city, note },
+      customer: { email, fullName, phone, postalCode, address, city, note },
       items: cleanItems,
       totals: {
         subtotalKM: Number.isFinite(subtotalKM) ? subtotalKM : null,
@@ -95,11 +104,11 @@ function renderAdminText(order) {
   const lines = [];
   lines.push("Nova narudžba:");
   lines.push("");
-  lines.push(`Kupac: ${order.customer.fullName || "(nije uneseno)"}`);
+  lines.push(`Kupac: ${order.customer.fullName}`);
   lines.push(`Email: ${order.customer.email}`);
-  if (order.customer.phone) lines.push(`Telefon: ${order.customer.phone}`);
-  if (order.customer.address || order.customer.city) lines.push(`Adresa: ${order.customer.address} ${order.customer.city}`.trim());
-  if (order.customer.note) lines.push(`Napomena: ${order.customer.note}`);
+  lines.push(`Telefon: ${order.customer.phone}`);
+  lines.push(`Adresa: ${order.customer.address}, ${order.customer.postalCode} ${order.customer.city}`.trim());
+  lines.push(`Napomena: ${order.customer.note}`);
   lines.push("");
   lines.push("Stavke:");
   for (const it of order.items) {
@@ -115,6 +124,7 @@ function renderAdminText(order) {
 }
 
 function renderCustomerHtml(order) {
+  const itemsCount = order.items.reduce((acc, it) => acc + Number(it.qty || 0), 0);
   const itemsHtml = order.items
     .map((it) => {
       const price = it.priceKM == null ? "" : ` <span style="color:#666">(${escapeHtml(formatKM(it.priceKM))})</span>`;
@@ -134,10 +144,12 @@ function renderCustomerHtml(order) {
   return `<!doctype html>
   <html>
     <body style="font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; line-height:1.5; color:#111">
-      <h2 style="margin:0 0 8px 0">Hvala na narudžbi</h2>
-      <p style="margin:0 0 12px 0">Primili smo tvoju narudžbu. Javićemo se uskoro sa detaljima isporuke.</p>
+      <h2 style="margin:0 0 8px 0">Narudžba je uspješno zaprimljena</h2>
+      <p style="margin:0 0 12px 0">
+        Hvala! Ovo su stavke koje si naručio/la (${escapeHtml(itemsCount)} kom).
+      </p>
       <h3 style="margin:16px 0 8px 0">Stavke</h3>
-      <ul style="margin:0; padding-left:18px">${itemsHtml}</ul>
+      <ul style="margin:0; padding-left:18px">${itemsHtml || "<li>(Stavke nisu učitane)</li>"}</ul>
       ${totalsHtml}
       <hr style="margin:20px 0; border:none; border-top:1px solid #eee" />
       <p style="margin:0; color:#666; font-size:12px">Ako imaš pitanje, odgovori na ovaj email.</p>

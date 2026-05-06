@@ -32,6 +32,7 @@ export function AppShell({ children }: PropsWithChildren) {
     fullName: "",
     phone: "",
     email: "",
+    postalCode: "",
     city: "",
     address: "",
     note: "",
@@ -112,8 +113,11 @@ export function AppShell({ children }: PropsWithChildren) {
     if (!checkout.phone.trim()) errors.phone = "Unesi broj telefona.";
     if (!checkout.email.trim()) errors.email = "Unesi email.";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(checkout.email.trim())) errors.email = "Unesi ispravan email.";
+    if (!checkout.postalCode.trim()) errors.postalCode = "Unesi poštanski broj.";
     if (!checkout.city.trim()) errors.city = "Unesi grad.";
-    if (!checkout.address.trim()) errors.address = "Unesi adresu.";
+    if (!checkout.address.trim()) errors.address = "Unesi adresu i broj.";
+    else if (!/\d/.test(checkout.address.trim())) errors.address = "Adresa mora sadržati broj (npr. Kralja Petra 12).";
+    if (!checkout.note.trim()) errors.note = "Unesi napomenu.";
     setCheckoutErrors(errors);
     return Object.keys(errors).length === 0;
   }
@@ -486,6 +490,7 @@ export function AppShell({ children }: PropsWithChildren) {
                       email: checkout.email.trim(),
                       fullName: checkout.fullName.trim(),
                       phone: checkout.phone.trim(),
+                      postalCode: checkout.postalCode.trim(),
                       address: checkout.address.trim(),
                       city: checkout.city.trim(),
                       note: checkout.note.trim(),
@@ -540,6 +545,18 @@ export function AppShell({ children }: PropsWithChildren) {
                   </label>
 
                   <label className="field">
+                    <span className="fieldLabel">Poštanski broj *</span>
+                    <input
+                      className={checkoutErrors.postalCode ? "fieldInput fieldInput--err" : "fieldInput"}
+                      value={checkout.postalCode}
+                      onChange={(e) => setCheckout((s) => ({ ...s, postalCode: e.target.value }))}
+                      placeholder="Unesi poštanski broj"
+                      inputMode="numeric"
+                    />
+                    {checkoutErrors.postalCode ? <span className="fieldErr">{checkoutErrors.postalCode}</span> : null}
+                  </label>
+
+                  <label className="field">
                     <span className="fieldLabel">Grad *</span>
                     <input
                       className={checkoutErrors.city ? "fieldInput fieldInput--err" : "fieldInput"}
@@ -556,20 +573,21 @@ export function AppShell({ children }: PropsWithChildren) {
                       className={checkoutErrors.address ? "fieldInput fieldInput--err" : "fieldInput"}
                       value={checkout.address}
                       onChange={(e) => setCheckout((s) => ({ ...s, address: e.target.value }))}
-                      placeholder="Unesi adresu"
+                      placeholder="Unesi ulicu i broj (npr. Kralja Petra 12)"
                     />
                     {checkoutErrors.address ? <span className="fieldErr">{checkoutErrors.address}</span> : null}
                   </label>
 
                   <label className="field field--full">
-                    <span className="fieldLabel">Napomena (opcionalno)</span>
+                    <span className="fieldLabel">Napomena *</span>
                     <textarea
-                      className="fieldInput fieldTextarea"
+                      className={checkoutErrors.note ? "fieldInput fieldTextarea fieldInput--err" : "fieldInput fieldTextarea"}
                       value={checkout.note}
                       onChange={(e) => setCheckout((s) => ({ ...s, note: e.target.value }))}
-                      placeholder="Unesi napomenu (opcionalno)"
+                      placeholder="Unesi napomenu"
                       rows={3}
                     />
+                    {checkoutErrors.note ? <span className="fieldErr">{checkoutErrors.note}</span> : null}
                   </label>
                 </div>
 
