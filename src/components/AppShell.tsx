@@ -73,6 +73,12 @@ export function AppShell({ children }: PropsWithChildren) {
   }, [location.pathname]);
 
   useEffect(() => {
+    const fbq = (window as any).fbq as undefined | ((...args: any[]) => void);
+    if (!fbq) return;
+    fbq("track", "PageView");
+  }, [location.pathname]);
+
+  useEffect(() => {
     if (isSearchOpen && !isCatalog) {
       setSearchDraft("");
     }
