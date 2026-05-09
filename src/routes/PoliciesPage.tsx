@@ -60,7 +60,7 @@ const content: Record<string, Doc> = {
         </p>
         <p>
           Ako smatrate da je došlo do povrede autorskih prava, molimo da nas kontaktirate na:{" "}
-          <strong>kupiparfeminfo@gmail.com</strong>
+          <strong>originalmirisbih@gmail.com</strong>
         </p>
         <p>Sva prava su zadržana.</p>
 
@@ -205,7 +205,7 @@ const content: Record<string, Doc> = {
         </h2>
         <p>
           U skladu sa važećim Zakonom o zaštiti potrošača u Bosni i Hercegovini, obrazac Izjave o odustanku
-          od ugovora dostavlja se na e-mail adresu: <strong>kupiparfeminfo@gmail.com</strong>
+          od ugovora dostavlja se na e-mail adresu: <strong>originalmirisbih@gmail.com</strong>
         </p>
         <p>
           Potrošač ostvaruje pravo na odustanak od ugovora zaključenog na daljinu ili izvan poslovnih
@@ -253,7 +253,7 @@ const content: Record<string, Doc> = {
 
         <p>
           Obrazac Izjave o odustanku od ugovora potrošač može zatražiti putem e-mail adrese:{" "}
-          <strong>kupiparfeminfo@gmail.com</strong>
+          <strong>originalmirisbih@gmail.com</strong>
         </p>
       </>
     ),
