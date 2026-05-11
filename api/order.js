@@ -90,6 +90,11 @@ function validateOrderPayload(body) {
   const totalKM = Number(totals.totalKM);
   const subtotalKM = Number(totals.subtotalKM);
   const discountKM = Number(totals.discountKM);
+  const shippingKM = Number(totals.shippingKM);
+  const shippingCarrier =
+    typeof totals.shippingCarrier === "string" && totals.shippingCarrier.trim()
+      ? totals.shippingCarrier.trim()
+      : null;
 
   return {
     ok: true,
@@ -99,6 +104,8 @@ function validateOrderPayload(body) {
       totals: {
         subtotalKM: Number.isFinite(subtotalKM) ? subtotalKM : null,
         discountKM: Number.isFinite(discountKM) ? discountKM : null,
+        shippingKM: Number.isFinite(shippingKM) ? shippingKM : null,
+        shippingCarrier,
         totalKM: Number.isFinite(totalKM) ? totalKM : null,
       },
     },
@@ -124,6 +131,10 @@ function renderAdminText(order) {
     lines.push("");
     if (order.totals.subtotalKM != null) lines.push(`Subtotal: ${formatKM(order.totals.subtotalKM)}`);
     if (order.totals.discountKM != null) lines.push(`Popust: ${formatKM(order.totals.discountKM)}`);
+    if (order.totals.shippingKM != null && order.totals.shippingKM > 0) {
+      const carrier = order.totals.shippingCarrier ? ` (${order.totals.shippingCarrier})` : "";
+      lines.push(`Dostava${carrier}: ${formatKM(order.totals.shippingKM)}`);
+    }
     lines.push(`Ukupno: ${formatKM(order.totals.totalKM)}`);
   }
   return lines.join("\n");
@@ -149,12 +160,18 @@ function renderCustomerHtml(order) {
     })
     .join("");
 
+  const shippingLine =
+    order.totals.shippingKM != null && order.totals.shippingKM > 0
+      ? `<div>Dostava${order.totals.shippingCarrier ? ` (${escapeHtml(order.totals.shippingCarrier)})` : ""}: <strong>${escapeHtml(formatKM(order.totals.shippingKM))}</strong></div>`
+      : "";
+
   const totalsHtml =
     order.totals.totalKM == null
       ? ""
       : `<p style="margin:12px 0 0 0">
             ${order.totals.subtotalKM != null ? `<div>Subtotal: <strong>${escapeHtml(formatKM(order.totals.subtotalKM))}</strong></div>` : ""}
             ${order.totals.discountKM != null ? `<div>Popust: <strong>${escapeHtml(formatKM(order.totals.discountKM))}</strong></div>` : ""}
+            ${shippingLine}
             <div>Ukupno: <strong>${escapeHtml(formatKM(order.totals.totalKM))}</strong></div>
           </p>`;
 

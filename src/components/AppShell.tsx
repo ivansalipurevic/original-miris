@@ -30,7 +30,7 @@ export function AppShell({ children }: PropsWithChildren) {
   const [placeOrderError, setPlaceOrderError] = useState<string | null>(null);
   const [placedOrderSummary, setPlacedOrderSummary] = useState<{
     items: { name: string; qty: number; priceKM?: number | null }[];
-    totals: { itemsCount: number; subtotalKM: number; discountKM: number; totalKM: number };
+    totals: { itemsCount: number; subtotalKM: number; discountKM: number; shippingKM: number; totalKM: number };
   } | null>(null);
   const [checkout, setCheckout] = useState({
     fullName: "",
@@ -56,12 +56,6 @@ export function AppShell({ children }: PropsWithChildren) {
   const urlQ = searchParams.get("q") ?? "";
   const searchInputValue = isCatalog ? urlQ : searchDraft;
   const cartProducts = useMemo(() => new Map(allProducts.map((p) => [p.id, p])), []);
-
-  const newestCartProductId = useMemo(() => {
-    if (!cart.state.lines.length) return null;
-    const newest = cart.state.lines.reduce((acc, l) => (!acc || l.addedAt > acc.addedAt ? l : acc), null as any);
-    return newest?.productId ?? null;
-  }, [cart.state.lines]);
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -356,7 +350,7 @@ export function AppShell({ children }: PropsWithChildren) {
                     {cart.state.lines.map((line) => {
                       const p = cartProducts.get(line.productId);
                       if (!p) return null;
-                      const isDiscounted = cart.totals.itemsCount >= 2 && newestCartProductId === p.id;
+                      const isDiscounted = cart.totals.discountProductId === p.id && cart.totals.discountKM > 0;
                       const lineTotal = isDiscounted
                         ? p.priceKM * Math.max(0, line.qty - 1) + p.priceKM * 0.5
                         : p.priceKM * line.qty;
@@ -405,9 +399,17 @@ export function AppShell({ children }: PropsWithChildren) {
                     </div>
                     {cart.totals.discountKM > 0 ? (
                       <div className="cartSummaryRow">
-                        <span className="muted">Popust (2. parfem -50%)</span>
+                        <span className="muted">Popust (2. parfem −50%)</span>
                         <span className="cartSummaryValue">
                           -{cart.totals.discountKM.toFixed(2).replace(".", ",")} KM
+                        </span>
+                      </div>
+                    ) : null}
+                    {cart.totals.shippingKM > 0 ? (
+                      <div className="cartSummaryRow">
+                        <span className="muted">Dostava (EuroExpress)</span>
+                        <span className="cartSummaryValue">
+                          {cart.totals.shippingKM.toFixed(2).replace(".", ",")} KM
                         </span>
                       </div>
                     ) : null}
@@ -506,6 +508,14 @@ export function AppShell({ children }: PropsWithChildren) {
                         </span>
                       </div>
                     ) : null}
+                    {placedOrderSummary.totals.shippingKM > 0 ? (
+                      <div className="cartSummaryRow">
+                        <span className="muted">Dostava (EuroExpress)</span>
+                        <span className="cartSummaryValue">
+                          {placedOrderSummary.totals.shippingKM.toFixed(2).replace(".", ",")} KM
+                        </span>
+                      </div>
+                    ) : null}
                     <div className="cartSummaryRow">
                       <span className="muted">Ukupno</span>
                       <span className="cartSummaryValue">
@@ -561,6 +571,7 @@ export function AppShell({ children }: PropsWithChildren) {
                           itemsCount: payload.items.reduce((acc, it) => acc + it.qty, 0),
                           subtotalKM: payload.totals?.subtotalKM ?? cart.totals.subtotalKM,
                           discountKM: payload.totals?.discountKM ?? cart.totals.discountKM,
+                          shippingKM: payload.totals?.shippingKM ?? cart.totals.shippingKM,
                           totalKM: payload.totals?.totalKM ?? cart.totals.totalKM,
                         },
                       });

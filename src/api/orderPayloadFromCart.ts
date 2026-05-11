@@ -22,6 +22,8 @@ export function orderPayloadFromCart(input: {
     totals: {
       subtotalKM: input.totals.subtotalKM,
       discountKM: input.totals.discountKM,
+      shippingKM: input.totals.shippingKM,
+      ...(input.totals.shippingKM > 0 ? { shippingCarrier: "EuroExpress" as const } : {}),
       totalKM: input.totals.totalKM,
     },
   };

@@ -124,7 +124,7 @@ export function ReviewsPage() {
         <div className="reviewsBottomCard">
           <div className="reviewsBottomTitle">Spreman/na za narudžbu?</div>
           <p className="reviewsBottomText muted">
-            Dostava je <strong>besplatna</strong> za narudžbe preko <strong>150 KM</strong>. Drugi parfem u korpi dobija <strong>50% popusta</strong>.
+            Dostava je <strong>besplatna</strong> za narudžbe preko <strong>150 KM</strong> (EuroExpress). Ispod toga dostava je <strong>12 KM</strong>. Dodaj još jedan parfem — <strong>drugi</strong> dobija <strong>50% popusta</strong>.
           </p>
           <div className="reviewsBottomCtas">
             <Link className="btnPrimary" to="/products">

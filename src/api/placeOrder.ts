@@ -19,6 +19,9 @@ export type OrderPayload = {
   totals?: {
     subtotalKM?: number;
     discountKM?: number;
+    shippingKM?: number;
+    /** Naziv kurira za prikaz u potvrdi (npr. EuroExpress). */
+    shippingCarrier?: string | null;
     totalKM?: number;
   };
 };

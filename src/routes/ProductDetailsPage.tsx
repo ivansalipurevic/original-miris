@@ -230,9 +230,9 @@ export function ProductDetailsPage() {
                 <div className="infoRow">
                   <div className="infoKey">Dostava</div>
                   <div className="infoVal">
-                    Dostava je{" "}
-                    <span className="infoEmph">besplatna</span> za narudžbe preko{" "}
-                    <span className="infoHighlight">150 KM</span>.
+                    <span className="infoEmph">Besplatna dostava</span> (EuroExpress) kada vrijednost korpe
+                    (nakon popusta) iznosi <span className="infoHighlight">150 KM</span> ili više. Ispod toga:{" "}
+                    <strong>12 KM</strong>.
                   </div>
                 </div>
                 <div className="infoRow">

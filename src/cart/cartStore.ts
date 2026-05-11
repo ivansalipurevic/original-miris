@@ -28,28 +28,41 @@ function safeParse(json: string | null): CartState | null {
   }
 }
 
+const FREE_SHIPPING_FROM_MERCHANDISE_KM = 150;
+const SHIPPING_EUROEXPRESS_KM = 12;
+
 function computeTotals(state: CartState): CartTotals {
   const map = new Map(allProducts.map((p) => [p.id, p]));
   let itemsCount = 0;
   let subtotalKM = 0;
   let discountKM = 0;
-  let newest: { productId: string; addedAt: number } | null = null;
+  let discountProductId: string | null = null;
+
+  type LineAgg = { productId: string; priceKM: number };
+  const byProductMinPrice: LineAgg[] = [];
   for (const line of state.lines) {
     const p = map.get(line.productId);
     if (!p) continue;
     itemsCount += line.qty;
     subtotalKM += p.priceKM * line.qty;
-    if (!newest || line.addedAt > newest.addedAt) newest = { productId: line.productId, addedAt: line.addedAt };
+    byProductMinPrice.push({ productId: line.productId, priceKM: p.priceKM });
   }
 
-  // Promo: 50% popusta na DRUGI parfem (najnovije dodani), na 1 kom.
-  if (itemsCount >= 2 && newest) {
-    const p = map.get(newest.productId);
+  // Promo: 50% na 1 kom najjeftinijeg parfema kada je u korpi 2+ artikla.
+  if (itemsCount >= 2 && byProductMinPrice.length) {
+    let minUnit = Infinity;
+    for (const row of byProductMinPrice) minUnit = Math.min(minUnit, row.priceKM);
+    const tied = byProductMinPrice.filter((r) => r.priceKM === minUnit).map((r) => r.productId);
+    discountProductId = tied.sort()[0] ?? null;
+    const p = discountProductId ? map.get(discountProductId) : undefined;
     if (p) discountKM = p.priceKM * 0.5;
   }
 
-  const totalKM = Math.max(0, subtotalKM - discountKM);
-  return { itemsCount, subtotalKM, discountKM, totalKM };
+  const merchandiseKM = Math.max(0, subtotalKM - discountKM);
+  const shippingKM =
+    merchandiseKM > 0 && merchandiseKM < FREE_SHIPPING_FROM_MERCHANDISE_KM ? SHIPPING_EUROEXPRESS_KM : 0;
+  const totalKM = merchandiseKM + shippingKM;
+  return { itemsCount, subtotalKM, discountKM, discountProductId, shippingKM, totalKM };
 }
 
 export function useCartStore() {
