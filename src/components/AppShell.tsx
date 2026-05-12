@@ -1,4 +1,4 @@
-import { PropsWithChildren, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, PropsWithChildren, useEffect, useMemo, useRef, useState } from "react";
 import { Link, NavLink, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { allProducts } from "../mock/products";
 import { useCart } from "../cart/CartContext";
@@ -15,6 +15,15 @@ const navItems: NavItem[] = [
   { to: "/collections/za-njega", label: "Muška kolekcija" },
   { to: "/collections/za-nju", label: "Ženska kolekcija" },
   { to: "/utisci", label: "Utisci" },
+];
+
+/** Klizna traka ispod crvenog topbara — drugi blok je duplikat za seamless marquee. */
+const TOPBAR_PROMO_ITEMS: { text: string; promo?: boolean }[] = [
+  { text: "BESPLATNA DOSTAVA ZA NARUDŽBE VEĆE OD 150 KM" },
+  { text: "DRUGI PARFEM −50%", promo: true },
+  { text: "100% ORIGINALNI PARFEMI" },
+  { text: "POVRAĆAJ NOVCA 14 DANA" },
+  { text: "DOSTAVA 1–3 RADNA DANA" },
 ];
 
 export function AppShell({ children }: PropsWithChildren) {
@@ -131,26 +140,16 @@ export function AppShell({ children }: PropsWithChildren) {
       <div className="topbar" aria-label="Promo informacije">
         <div className="topbarViewport">
           <div className="topbarTrack">
-            <div className="topbarGroup">
-              <span className="topbarItem">BESPLATNA DOSTAVA ZA NARUDŽBE VEĆE OD 150 KM</span>
-              <span className="topbarSep" aria-hidden="true" />
-              <span className="topbarItem">100% ORIGINALNI PARFEMI</span>
-              <span className="topbarSep" aria-hidden="true" />
-              <span className="topbarItem">POVRAĆAJ NOVCA 14 DANA</span>
-              <span className="topbarSep" aria-hidden="true" />
-              <span className="topbarItem">DOSTAVA 1–3 RADNA DANA</span>
-              <span className="topbarSep" aria-hidden="true" />
-            </div>
-            <div className="topbarGroup" aria-hidden="true">
-              <span className="topbarItem">BESPLATNA DOSTAVA ZA NARUDŽBE VEĆE OD 150 KM</span>
-              <span className="topbarSep" aria-hidden="true" />
-              <span className="topbarItem">100% ORIGINALNI PARFEMI</span>
-              <span className="topbarSep" aria-hidden="true" />
-              <span className="topbarItem">POVRAĆAJ NOVCA 14 DANA</span>
-              <span className="topbarSep" aria-hidden="true" />
-              <span className="topbarItem">DOSTAVA 1–3 RADNA DANA</span>
-              <span className="topbarSep" aria-hidden="true" />
-            </div>
+            {[0, 1].map((copy) => (
+              <div key={copy} className="topbarGroup" aria-hidden={copy === 1 ? true : undefined}>
+                {TOPBAR_PROMO_ITEMS.map((item) => (
+                  <Fragment key={`${copy}-${item.text}`}>
+                    <span className={item.promo ? "topbarItem topbarItem--promo" : "topbarItem"}>{item.text}</span>
+                    <span className="topbarSep" aria-hidden="true" />
+                  </Fragment>
+                ))}
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -387,8 +386,13 @@ export function AppShell({ children }: PropsWithChildren) {
 
                   <div className="cartSummary">
                     {cart.totals.itemsCount === 1 ? (
-                      <div className="muted" style={{ fontSize: 12, lineHeight: 1.4 }}>
-                        Dodaj još 1 parfem i <strong>drugi</strong> dobija <strong>50% popusta</strong>.
+                      <div className="cartSecondScentPromo" role="status">
+                        <span className="cartSecondScentPromoBadge" aria-hidden="true">
+                          −50<span className="cartSecondScentPromoPct">%</span>
+                        </span>
+                        <p className="cartSecondScentPromoText">
+                          Dodaj još jedan parfem i <strong>drugi</strong> dobija <strong>50% popusta</strong>.
+                        </p>
                       </div>
                     ) : null}
                     <div className="cartSummaryRow">

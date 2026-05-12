@@ -17,7 +17,6 @@ export type Product = {
 };
 
 const BASE_PRICE_BUMP_KM = 15;
-const NON_XERJOFF_EXTRA_BUMP_KM = 2;
 
 function isXerjoffProduct(p: Pick<Product, "id" | "name">): boolean {
   return p.id.startsWith("xerjoff-") || /^XERJOFF\b/i.test(p.name);
@@ -238,12 +237,9 @@ export const allProducts: Product[] = RAW_PRODUCTS.map((p) => {
   const xerjoff = isXerjoffProduct(p);
   return {
     ...p,
-    priceKM: xerjoff ? 155 : p.priceKM + BASE_PRICE_BUMP_KM + NON_XERJOFF_EXTRA_BUMP_KM,
+    priceKM: xerjoff ? 155 : p.priceKM + BASE_PRICE_BUMP_KM,
     ...(typeof p.compareAtPriceKM === "number"
-      ? {
-          compareAtPriceKM:
-            p.compareAtPriceKM + BASE_PRICE_BUMP_KM + (xerjoff ? 0 : NON_XERJOFF_EXTRA_BUMP_KM),
-        }
+      ? { compareAtPriceKM: p.compareAtPriceKM + BASE_PRICE_BUMP_KM }
       : {}),
   };
 });
