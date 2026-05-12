@@ -16,7 +16,12 @@ export type Product = {
   imageUrl?: string;
 };
 
-const PRICE_BUMP_KM = 15;
+const BASE_PRICE_BUMP_KM = 15;
+const NON_XERJOFF_EXTRA_BUMP_KM = 2;
+
+function isXerjoffProduct(p: Pick<Product, "id" | "name">): boolean {
+  return p.id.startsWith("xerjoff-") || /^XERJOFF\b/i.test(p.name);
+}
 
 const RAW_PRODUCTS: Product[] = [
   { id: "kilian-angels-share", name: "KILIAN Angels`Share EDP", description: "", priceKM: 161, compareAtPriceKM: 328, sizeML: 50, available: true, collection: "za_njega", imageUrl: "https://cdn.shopify.com/s/files/1/0746/8672/6316/files/IMG-8335.png?v=1774120251" },
@@ -229,11 +234,19 @@ const RAW_PRODUCTS: Product[] = [
   { id: "essential-parfums-bois-imperial", name: "ESSENTIAL PARFUMS Bois Imperial EDP", description: "Svježe izmrvljeni listovi bosiljka sa Tajlanda spojiće se sa nepalskim biberom u brilijantan začinski kompleks, postavljen kao antiteža snažnom drvenastom karakteru parfema. Haićanski vetiver, zelen, raskošan i pun zemljastih tonova, udružen je sa ekskluzivnim, drvenastim mirisnim molekulom “Georgywood” sa jakim notama kedra. Ova igra više drvenastih nota je ukras parfema koji istinski počiva na ekskluzivnom prirodnom sastojku akigalawood dobijenog biotehnologijom apcikliranjem iz pačulija. Bogat drvenasto-začinski karakter parfema pojačan je indonežanskim pačulijem i amborfiksom. Sastojci su iz održive proizvodnje ili apcikliranja, čime se podržavaju bolje poljoprivredne i destilacione pakse i smanjuje uticaj na okolinu.", brand: "Doris", priceKM: 123, compareAtPriceKM: 218, sizeML: 100, available: true, collection: "za_njega", imageUrl: "https://cdn.shopify.com/s/files/1/0746/8672/6316/files/23446_1_6735bc1387a8a_980x980r_715e0c30-e9b6-4090-a0b8-812acb6df6b3.jpg?v=1774120026" },
 ];
 
-export const allProducts: Product[] = RAW_PRODUCTS.map((p) => ({
-  ...p,
-  priceKM: p.priceKM + PRICE_BUMP_KM,
-  ...(typeof p.compareAtPriceKM === "number" ? { compareAtPriceKM: p.compareAtPriceKM + PRICE_BUMP_KM } : {}),
-}));
+export const allProducts: Product[] = RAW_PRODUCTS.map((p) => {
+  const xerjoff = isXerjoffProduct(p);
+  return {
+    ...p,
+    priceKM: xerjoff ? 155 : p.priceKM + BASE_PRICE_BUMP_KM + NON_XERJOFF_EXTRA_BUMP_KM,
+    ...(typeof p.compareAtPriceKM === "number"
+      ? {
+          compareAtPriceKM:
+            p.compareAtPriceKM + BASE_PRICE_BUMP_KM + (xerjoff ? 0 : NON_XERJOFF_EXTRA_BUMP_KM),
+        }
+      : {}),
+  };
+});
 
 export const womensProducts = allProducts.filter((x) => x.collection === "za_nju");
 export const mensProducts = allProducts.filter((x) => x.collection === "za_njega");
