@@ -22,7 +22,7 @@ const TOPBAR_PROMO_ITEMS: { text: string; promo?: boolean }[] = [
   { text: "BESPLATNA DOSTAVA ZA NARUDŽBE VEĆE OD 150 KM" },
   { text: "DRUGI PARFEM −50%", promo: true },
   { text: "100% ORIGINALNI PARFEMI" },
-  { text: "POVRAĆAJ NOVCA 14 DANA" },
+  { text: "USKORO PRODAJA U SRBIJI!" },
   { text: "DOSTAVA 1–3 RADNA DANA" },
 ];
 
